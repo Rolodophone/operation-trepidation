@@ -53,7 +53,7 @@ class StateGame(override val ctx: MainActivity) : State {
             //draw colours
             for (sectorIndex in 0..8) {
                 paint.style = Paint.Style.FILL
-                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120/9f, 1f, 1f))
+                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120/9f, 0.5f, 1f))
                 canvas.drawArc(dim, (135f + sectorIndex * 270/9), 30f, true, paint)
             }
 
@@ -69,10 +69,18 @@ class StateGame(override val ctx: MainActivity) : State {
             canvas.drawLine(dim.centerX(), dim.centerY(), pos.x, pos.y, paint)
         }
 
+        paint.color = Color.BLACK
+        paint.textSize = w(10)
+        paint.strokeWidth = w(0.7f)
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText("BREATHING", w(45), w(85), paint)
+        canvas.drawText("HEART", w(135), w(85), paint)
+        canvas.drawText("INFECTION", w(225), w(85), paint)
+        canvas.drawText("BLOOD", w(315), w(85), paint)
+
 
         //draw console
-        paint.color = Color.BLACK
         paint.style = Paint.Style.FILL
-        canvas.drawRect(w(20), w(200), w(340), height - w(20), paint)
+        canvas.drawRect(w(20), h(200), w(340), height - w(20), paint)
     }
 }

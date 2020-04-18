@@ -65,7 +65,7 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
         val dim = Point()
-        windowManager.defaultDisplay.getSize(dim)
+        windowManager.defaultDisplay.getRealSize(dim)
 
         width = dim.x.toFloat()
         height = dim.y.toFloat()
