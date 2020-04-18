@@ -54,7 +54,7 @@ class MainActivity : Activity() {
         bitmaps = Bitmaps(this)
 
         //load state, waiting for music to finish
-        state = StateLoading(this, StateGame(this, 1))
+        state = StateLoading(this, StateGame(this))
     }
 
     override fun onStart() {

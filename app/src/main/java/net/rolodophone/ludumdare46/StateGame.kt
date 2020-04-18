@@ -1,31 +1,73 @@
 package net.rolodophone.ludumdare46
 
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
 import net.rolodophone.ludumdare46.button.Button
 
 
-class StateGame(override val ctx: MainActivity, val level: Int) : State {
-    companion object {
-        //float array order is breathing, heart, infection, blood
-        class Action(val text: String, val effect: FloatArray, val duration: Float, val condition: () -> Boolean)
-        class Level(val text: String, val initialGauges: FloatArray, val initialGaugeSpeeds: FloatArray)
+class StateGame(override val ctx: MainActivity) : State {
 
-        val ACTIONS = listOf(
-                Action("Sterilise scalpel", floatArrayOf())
-        )
-        val LEVELS = listOf(
-                Level("BULLET DEBRIDEMENT", floatArrayOf(1f, 1f, 0.7f, 0.4f), floatArrayOf(0f, 0f, 0.05f, 0.1f))
-        )
+    class Action(val text: String, val duration: Float, val effect: () -> Unit = {}, val condition: () -> Boolean = {true}) {
+        val invoke = {}
     }
 
-    override val numThingsToLoad = 1
+    //float array order is heart rate, pain, infection, blood
 
-    val bitmaps = ctx.bitmaps
-    val sounds = ctx.sounds
-    val music = ctx.music
+    val actions = listOf(
+        Action("STERILISE SCALPEL", 2f, { level.scalpelIsSterilised = true }),
+        Action("DISINFECT FORCEPS", 2f, { level.forcepsAreDisinfected = true }),
+        Action("STERILISE NEEDLE", 2f, { level.needleIsDisinfected = true }),
+        Action("DISINFECT SAW", 3f, {level.sawIsDisinfected = true}),
+        Action("WEAR FACE MASK", 2f, {
+            level.isWearingFaceMask = true
+            level.gaugeSpeeds[2] += 0.025f
+        }, { !level.isWearingFaceMask }),
+        Action("ANAESTHETISE LEG", 3f, {
+            level.gauges[0] -= 0.7f
+            level.gauges[1] = 1f
+            level.isAnaesthetised = true
+        }),
+        Action("CUT OPEN LEG",
+            5f, {
+                level.legIsOpen = true
+                if (!level.isAnaesthetised) level.gauges[1] += -0.5f
+                if (!level.scalpelIsSterilised) level.gaugeSpeeds[2] += -0.12f
+                level.gaugeSpeeds[2] += -0.005f
+                level.gaugeSpeeds[3] = -0.03f
+            },
+            { !level.legIsOpen }
+        ),
+        Action("CAUTERIZE BLOOD VESSELS IN LEG", 3f, { level.gaugeSpeeds[3] = -0.003f }),
+        Action("TAKE OUT BULLET FROM LEG", 4f, {
+            if (!level.isAnaesthetised) level.gauges[1] += -0.3f
+            if (!level.forcepsAreDisinfected) level.gaugeSpeeds[2] += -0.12f
+            level.bulletIsInLeg = false
+            level.gaugeSpeeds[2] += 0.01f
+        }, {level.bulletIsInLeg}),
+        Action("STITCH UP LEG", 8f, {
+            level.legIsOpen = false
+            if (!level.isAnaesthetised) level.gauges[1] += -0.3f
+            if (!level.needleIsDisinfected) level.gaugeSpeeds[2] += -0.12f
+            level.gaugeSpeeds[3] = 0.05f
+        }, {level.legIsOpen}),
+        Action("WAIT FOR ANAESTHETIC TO PASS", 8f, {
+            if (level.legIsOpen) level.gaugeSpeeds[1] = -0.5f
+            level.isAnaesthetised = false
+        }, {level.isAnaesthetised}),
+        Action("SPIT INTO LEG", 1f, {
+            level.gaugeSpeeds[2] += -0.25f
+        }, {level.legIsOpen}),
+        Action("AMPUTATE ARM", 5f, {
+            if (!level.isAnaesthetised) level.gaugeSpeeds[1] = -1f
+            if (!level.sawIsDisinfected) level.gaugeSpeeds[2] += -0.15f
+        })
+    )
+
+    val levels = listOf(
+        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", floatArrayOf(1f, 0.6f, 0.9f, 0.4f), floatArrayOf(0f, -0.02f, -0.03f, -0.01f)) {
+            !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
+        }
+    )
+
+    override val numThingsToLoad = 1
 
     enum class State {NONE, GAME_OVER}
 
@@ -33,84 +75,23 @@ class StateGame(override val ctx: MainActivity, val level: Int) : State {
         set(value) {
             when (value) {
                 State.NONE -> {
-                    music.resume()
+                    ctx.music.resume()
                 }
                 State.GAME_OVER -> {
-                    music.pause()
+                    ctx.music.pause()
                 }
             }
             field = value
         }
 
+    var level: Level = levels[0]
+
     override val buttons = mutableListOf<Button.ButtonHandler>()
 
     init {
-        music.playGame()
+        ctx.music.playGame()
     }
 
-    val gauges = LEVELS[level].initialGauges
-    val gaugeSpeeds = LEVELS[level].initialGaugeSpeeds
-
-    override fun update() {
-        //update gauges
-        for (i in gauges.indices) {
-            gauges[i] += gaugeSpeeds[i]
-            if (gauges[i] > 1f) gauges[i] = 1f
-            if (gauges[i] <= 0f) die()
-        }
-    }
-
-    override fun draw() {
-        canvas.drawRGB(240, 255, 255)
-
-        //draw gauges
-        for (gaugeIndex in 0..3) {
-            val dim = RectF(w(90 * gaugeIndex + 10), w(10), w(90 * gaugeIndex + 80), w(80))
-
-            //draw colours
-            for (sectorIndex in 0..8) {
-                paint.style = Paint.Style.FILL
-                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120/9f, 0.5f, 1f))
-                canvas.drawArc(dim, (135f + sectorIndex * 270/9), 30f, true, paint)
-            }
-
-            //draw outline
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = w(1)
-            paint.color = Color.BLACK
-            canvas.drawArc(dim, 135f, 270f, true, paint)
-
-            //needle
-            paint.strokeCap = Paint.Cap.ROUND
-            paint.strokeWidth = w(3)
-            val pos = posFromDeg(dim.centerX(), dim.centerY(), w(25f), (135f + gauges[gaugeIndex] * 270) % 360)
-            canvas.drawLine(dim.centerX(), dim.centerY(), pos.x, pos.y, paint)
-        }
-
-        paint.color = Color.BLACK
-        paint.textSize = w(10)
-        paint.isFakeBoldText = true
-        paint.style = Paint.Style.FILL
-        paint.textAlign = Paint.Align.CENTER
-        canvas.drawText("BREATHING", w(45), w(85), paint)
-        canvas.drawText("HEART", w(135), w(85), paint)
-        canvas.drawText("INFECTION", w(225), w(85), paint)
-        canvas.drawText("BLOOD", w(315), w(85), paint)
-
-
-        //draw buttons
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = w(4)
-        paint.color = Color.rgb(0, 0, 170)
-        paint.strokeCap = Paint.Cap.SQUARE
-//        canvas.drawRect(w(17), h(220), halfWidth - w(3), h(270) - w(10), paint)
-//        canvas.drawRect(halfWidth + w(3), h(220), w(340), h(270) - w(10), paint)
-//        canvas.drawRect(w(20), h(220), w(340), height - w(20), paint)
-//        canvas.drawRect(w(20), h(220), w(340), height - w(20), paint)
-    }
-
-
-    fun die() {
-
-    }
+    override fun update() = level.update()
+    override fun draw() = level.draw()
 }
