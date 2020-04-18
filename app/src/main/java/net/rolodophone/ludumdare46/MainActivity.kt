@@ -43,7 +43,6 @@ class MainActivity : Activity() {
         mainView.holder.setFormat(PixelFormat.RGB_565)
 
         //initialize paints
-        paint.strokeCap = Paint.Cap.ROUND
         paint.isAntiAlias = true
         paint.isFilterBitmap = true
         bitmapPaint.isAntiAlias = true
@@ -55,7 +54,7 @@ class MainActivity : Activity() {
         bitmaps = Bitmaps(this)
 
         //load state, waiting for music to finish
-        state = StateLoading(this, StateGame(this))
+        state = StateLoading(this, StateGame(this, 1))
     }
 
     override fun onStart() {

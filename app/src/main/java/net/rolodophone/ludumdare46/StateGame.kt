@@ -1,11 +1,26 @@
 package net.rolodophone.ludumdare46
 
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import net.rolodophone.ludumdare46.button.Button
 
-class StateGame(override val ctx: MainActivity) : State {
+
+class StateGame(override val ctx: MainActivity, val level: Int) : State {
+    companion object {
+        //float array order is breathing, heart, infection, blood
+        class Action(val text: String, val effect: FloatArray, val duration: Float, val condition: () -> Boolean)
+        class Level(val text: String, val initialGauges: FloatArray, val initialGaugeSpeeds: FloatArray)
+
+        val ACTIONS = listOf(
+                Action("Sterilise scalpel", floatArrayOf())
+        )
+        val LEVELS = listOf(
+                Level("BULLET DEBRIDEMENT", floatArrayOf(1f, 1f, 0.7f, 0.4f), floatArrayOf(0f, 0f, 0.05f, 0.1f))
+        )
+    }
+
     override val numThingsToLoad = 1
 
     val bitmaps = ctx.bitmaps
@@ -33,20 +48,22 @@ class StateGame(override val ctx: MainActivity) : State {
         music.playGame()
     }
 
-    var gaugeBreathing = .2f
-    var gaugeHeart = 1f
-    var gaugeInfection = .9f
-    var gaugeBlood = .5f
+    val gauges = LEVELS[level].initialGauges
+    val gaugeSpeeds = LEVELS[level].initialGaugeSpeeds
 
     override fun update() {
-
+        //update gauges
+        for (i in gauges.indices) {
+            gauges[i] += gaugeSpeeds[i]
+            if (gauges[i] > 1f) gauges[i] = 1f
+            if (gauges[i] <= 0f) die()
+        }
     }
 
     override fun draw() {
         canvas.drawRGB(240, 255, 255)
 
         //draw gauges
-        val gaugeValues = listOf(gaugeBreathing, gaugeHeart, gaugeInfection, gaugeBlood)
         for (gaugeIndex in 0..3) {
             val dim = RectF(w(90 * gaugeIndex + 10), w(10), w(90 * gaugeIndex + 80), w(80))
 
@@ -64,14 +81,16 @@ class StateGame(override val ctx: MainActivity) : State {
             canvas.drawArc(dim, 135f, 270f, true, paint)
 
             //needle
+            paint.strokeCap = Paint.Cap.ROUND
             paint.strokeWidth = w(3)
-            val pos = posFromDeg(dim.centerX(), dim.centerY(), w(25f), (135f + gaugeValues[gaugeIndex] * 270) % 360)
+            val pos = posFromDeg(dim.centerX(), dim.centerY(), w(25f), (135f + gauges[gaugeIndex] * 270) % 360)
             canvas.drawLine(dim.centerX(), dim.centerY(), pos.x, pos.y, paint)
         }
 
         paint.color = Color.BLACK
         paint.textSize = w(10)
-        paint.strokeWidth = w(0.7f)
+        paint.isFakeBoldText = true
+        paint.style = Paint.Style.FILL
         paint.textAlign = Paint.Align.CENTER
         canvas.drawText("BREATHING", w(45), w(85), paint)
         canvas.drawText("HEART", w(135), w(85), paint)
@@ -79,8 +98,19 @@ class StateGame(override val ctx: MainActivity) : State {
         canvas.drawText("BLOOD", w(315), w(85), paint)
 
 
-        //draw console
-        paint.style = Paint.Style.FILL
-        canvas.drawRect(w(20), h(200), w(340), height - w(20), paint)
+        //draw buttons
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = w(4)
+        paint.color = Color.rgb(0, 0, 170)
+        paint.strokeCap = Paint.Cap.SQUARE
+//        canvas.drawRect(w(17), h(220), halfWidth - w(3), h(270) - w(10), paint)
+//        canvas.drawRect(halfWidth + w(3), h(220), w(340), h(270) - w(10), paint)
+//        canvas.drawRect(w(20), h(220), w(340), height - w(20), paint)
+//        canvas.drawRect(w(20), h(220), w(340), height - w(20), paint)
+    }
+
+
+    fun die() {
+
     }
 }
