@@ -4,12 +4,12 @@ import android.graphics.Bitmap
 import android.graphics.RectF
 import net.rolodophone.ludumdare46.State
 import net.rolodophone.ludumdare46.canvas
-import net.rolodophone.ludumdare46.whitePaint
+import net.rolodophone.ludumdare46.paint
 
 class ButtonBitmap(val bitmap: Bitmap, state: State, dim: RectF, onClick: () -> Unit) : Button(state, dim, onClick) {
 
     override fun draw() {
         super.draw()
-        canvas.drawBitmap(bitmap, null, dim, whitePaint)
+        canvas.drawBitmap(bitmap, null, dim, paint)
     }
 }

@@ -1,5 +1,8 @@
 package net.rolodophone.ludumdare46
 
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import net.rolodophone.ludumdare46.button.Button
 
 class StateGame(override val ctx: MainActivity) : State {
@@ -26,23 +29,50 @@ class StateGame(override val ctx: MainActivity) : State {
 
     override val buttons = mutableListOf<Button.ButtonHandler>()
 
-//    val road = Road(this)
-//    val player = Player(this)
-//    val weather = Weather(this)
-//    val status = Status(this)
-//    val gameOverlay = GameOverlay(this)
-//    val pausedOverlay = PausedOverlay(this)
-//    val gameOverOverlay = GameOverOverlay(this)
-
     init {
         music.playGame()
     }
+
+    var gaugeBreathing = .2f
+    var gaugeHeart = 1f
+    var gaugeInfection = .9f
+    var gaugeBlood = .5f
 
     override fun update() {
 
     }
 
     override fun draw() {
+        canvas.drawRGB(240, 255, 255)
 
+        //draw gauges
+        val gaugeValues = listOf(gaugeBreathing, gaugeHeart, gaugeInfection, gaugeBlood)
+        for (gaugeIndex in 0..3) {
+            val dim = RectF(w(90 * gaugeIndex + 10), w(10), w(90 * gaugeIndex + 80), w(80))
+
+            //draw colours
+            for (sectorIndex in 0..8) {
+                paint.style = Paint.Style.FILL
+                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120/9f, 1f, 1f))
+                canvas.drawArc(dim, (135f + sectorIndex * 270/9), 30f, true, paint)
+            }
+
+            //draw outline
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = w(1)
+            paint.color = Color.BLACK
+            canvas.drawArc(dim, 135f, 270f, true, paint)
+
+            //needle
+            paint.strokeWidth = w(3)
+            val pos = posFromDeg(dim.centerX(), dim.centerY(), w(25f), (135f + gaugeValues[gaugeIndex] * 270) % 360)
+            canvas.drawLine(dim.centerX(), dim.centerY(), pos.x, pos.y, paint)
+        }
+
+
+        //draw console
+        paint.color = Color.BLACK
+        paint.style = Paint.Style.FILL
+        canvas.drawRect(w(20), w(200), w(340), height - w(20), paint)
     }
 }

@@ -5,7 +5,7 @@ import android.graphics.RectF
 import net.rolodophone.ludumdare46.State
 import net.rolodophone.ludumdare46.canvas
 import net.rolodophone.ludumdare46.w
-import net.rolodophone.ludumdare46.whitePaint
+import net.rolodophone.ludumdare46.paint
 
 open class ButtonText(val text: String, val align: Paint.Align, state: State, dim: RectF, onClick: () -> Unit) : Button(state, dim, onClick) {
 
@@ -19,8 +19,8 @@ open class ButtonText(val text: String, val align: Paint.Align, state: State, di
     override fun draw() {
         super.draw()
 
-        whitePaint.textAlign = align
-        whitePaint.textSize = textSize
-        canvas.drawText(text, x, dim.bottom, whitePaint)
+        paint.textAlign = align
+        paint.textSize = textSize
+        canvas.drawText(text, x, dim.bottom, paint)
     }
 }

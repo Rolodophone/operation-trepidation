@@ -2,11 +2,9 @@ package net.rolodophone.ludumdare46
 
 import android.app.Activity
 import android.graphics.*
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
 
 var width = 0f
 var height = 0f
@@ -18,9 +16,8 @@ var hUnit = 0f
 var fps = Float.POSITIVE_INFINITY
 var canvas = Canvas()
 
-var whitePaint = Paint()
+var paint = Paint()
 var bitmapPaint = Paint()
-var dimmerPaint = Paint()
 
 var appOpen = false
 
@@ -38,19 +35,6 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.
-
-        val dim = Point()
-        windowManager.defaultDisplay.getSize(dim)
-
-        width = dim.x.toFloat()
-        height = dim.y.toFloat()
-        halfWidth = width / 2f
-        halfHeight = height / 2f
-        wUnit = width / 360f
-        hUnit = height / 360f
-        Log.i("Activity", "width: $width height: $height")
-
         mainView = MainView(this)
 
         setContentView(mainView)
@@ -59,12 +43,11 @@ class MainActivity : Activity() {
         mainView.holder.setFormat(PixelFormat.RGB_565)
 
         //initialize paints
-        whitePaint.color = Color.rgb(255, 255, 255)
-        whitePaint.isAntiAlias = true
-        whitePaint.isFilterBitmap = true
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.isAntiAlias = true
+        paint.isFilterBitmap = true
         bitmapPaint.isAntiAlias = true
         bitmapPaint.isFilterBitmap = false
-        dimmerPaint.color = Color.argb(150, 0, 0, 0)
 
         //load resources
         sounds = Sounds(this)
@@ -80,6 +63,17 @@ class MainActivity : Activity() {
 
         //configure window
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+
+        val dim = Point()
+        windowManager.defaultDisplay.getSize(dim)
+
+        width = dim.x.toFloat()
+        height = dim.y.toFloat()
+        halfWidth = width / 2f
+        halfHeight = height / 2f
+        wUnit = width / 360f
+        hUnit = height / 360f
+        Log.i("Activity", "width: $width height: $height")
 
         appOpen = true
         thread = Thread(mainView)

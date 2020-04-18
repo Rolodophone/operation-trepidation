@@ -29,7 +29,7 @@ class Music(ctx: MainActivity) {
         val dataSourceFactory = DefaultDataSourceFactory(ctx, Util.getUserAgent(ctx, ctx.resources.getString(R.string.app_name)))
         val rawDataSource = RawResourceDataSource(ctx)
 
-        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.just_nasty)))
+        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.music)))
         game = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri)
     }
 
