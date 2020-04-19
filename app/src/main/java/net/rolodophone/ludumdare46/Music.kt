@@ -10,7 +10,7 @@ import com.google.android.exoplayer2.upstream.RawResourceDataSource
 import com.google.android.exoplayer2.util.Util
 
 class Music(ctx: MainActivity) {
-    private val player = SimpleExoPlayer.Builder(ctx).build()
+    val player = SimpleExoPlayer.Builder(ctx).build()
 
     init {
         player.addListener(object : Player.EventListener {
@@ -48,10 +48,9 @@ class Music(ctx: MainActivity) {
     }
 
 
-
-    fun playMusic(index: Int) {
+    fun prepMusic(index: Int) {
         player.prepare(music[index])
-        player.playWhenReady = true
+        player.playWhenReady = false
     }
     
 
