@@ -18,6 +18,8 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
 
     var buttons = mutableListOf<ButtonText>()
 
+    var currentAction: Action? = null
+
 
     fun replaceButtons() {
         buttons.clear()
@@ -25,7 +27,7 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
 
         val buttonHeight = (h(170) - w(50)) / 5
 
-        val availableActions = mutableListOf<StateGame.Action>()
+        val availableActions = mutableListOf<Action>()
         availableActions.addAll(state.actions.filter { it.condition() })
 
         for (i in 0..4) {
@@ -34,7 +36,9 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
             if (i != 4) {
                 val newAction = availableActions.random()
                 availableActions.remove(newAction)
-                buttons.add(ButtonText(newAction.text, Paint.Align.CENTER, state, dim, w(18), newAction.invoke))
+                buttons.add(ButtonText(newAction.text, Paint.Align.CENTER, state, dim, w(18)) {
+                    currentAction = newAction
+                })
             }
             else {
                 buttons.add(ButtonText("[SKIP]", Paint.Align.CENTER, state, dim, w(18)) {
@@ -59,6 +63,16 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
         if (clearCondition()) complete()
 
         for (button in buttons) button.update()
+
+        if (currentAction != null) {
+            currentAction!!.progress += (1f / currentAction!!.duration) / fps
+
+            if (currentAction!!.progress >= 1f) {
+                currentAction!!.effect()
+                currentAction = null
+                replaceButtons()
+            }
+        }
     }
 
 
@@ -101,11 +115,26 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
 
 
         //draw buttons
-        for (button in buttons) {
-            paint.color = Color.rgb(130, 180, 255)
-            canvas.drawRect(button.dim, paint)
+        if (currentAction == null) {
+            for (button in buttons) {
+                paint.color = Color.rgb(130, 180, 255)
+                canvas.drawRect(button.dim, paint)
+                paint.color = Color.BLACK
+                button.draw()
+            }
+        }
+        else {
+            paint.textSize = w(18)
+            canvas.drawText(currentAction!!.text, halfWidth, h(220), paint)
+
+            val progressBarDim = RectF(w(30), h(250), w(330), h(250) + w(40))
+            paint.color = Color.rgb(120, 210, 255)
+            canvas.drawRect(progressBarDim, paint)
+            paint.color = Color.rgb(50, 100, 255)
+            canvas.drawRect(w(30), h(250), w(30) + w(300) * currentAction!!.progress, h(250) + w(40), paint)
+            paint.style = Paint.Style.STROKE
             paint.color = Color.BLACK
-            button.draw()
+            canvas.drawRect(progressBarDim, paint)
         }
     }
 

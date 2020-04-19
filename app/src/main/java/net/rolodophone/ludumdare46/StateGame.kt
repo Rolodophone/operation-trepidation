@@ -25,19 +25,22 @@ class StateGame(override val ctx: MainActivity) : State {
     override val buttons = mutableListOf<Button.ButtonHandler>()
 
 
-    class Action(val text: String, val duration: Float, val effect: () -> Unit = {}, val condition: () -> Boolean = {true}) {
-        val invoke = {
-
-        }
-    }
-
     //float array order is heart rate, pain, infection, blood
 
     val actions = listOf(
-        Action("STERILISE SCALPEL", 2f, { level.scalpelIsSterilised = true }),
-        Action("DISINFECT FORCEPS", 2f, { level.forcepsAreDisinfected = true }),
-        Action("STERILISE NEEDLE", 2f, { level.needleIsDisinfected = true }),
-        Action("DISINFECT SAW", 3f, {level.sawIsDisinfected = true}),
+        Action(
+            "STERILISE SCALPEL",
+            2f,
+            { level.scalpelIsSterilised = true }),
+        Action(
+            "DISINFECT FORCEPS",
+            2f,
+            { level.forcepsAreDisinfected = true }),
+        Action(
+            "STERILISE NEEDLE",
+            2f,
+            { level.needleIsDisinfected = true }),
+        Action("DISINFECT SAW", 3f, { level.sawIsDisinfected = true }),
         Action("WEAR FACE MASK", 2f, {
             level.isWearingFaceMask = true
             level.gaugeSpeeds[2] += 0.025f
@@ -57,26 +60,29 @@ class StateGame(override val ctx: MainActivity) : State {
             },
             { !level.legIsOpen }
         ),
-        Action("CAUTERIZE BLOOD VESSELS IN LEG", 3f, { level.gaugeSpeeds[3] = -0.003f }),
+        Action(
+            "CAUTERIZE BLOOD VESSELS IN LEG",
+            3f,
+            { level.gaugeSpeeds[3] = -0.003f }),
         Action("TAKE OUT BULLET FROM LEG", 4f, {
             if (!level.isAnaesthetised) level.gauges[1] += -0.3f
             if (!level.forcepsAreDisinfected) level.gaugeSpeeds[2] += -0.12f
             level.bulletIsInLeg = false
             level.gaugeSpeeds[2] += 0.01f
-        }, {level.bulletIsInLeg}),
+        }, { level.bulletIsInLeg }),
         Action("STITCH UP LEG", 8f, {
             level.legIsOpen = false
             if (!level.isAnaesthetised) level.gauges[1] += -0.3f
             if (!level.needleIsDisinfected) level.gaugeSpeeds[2] += -0.12f
             level.gaugeSpeeds[3] = 0.05f
-        }, {level.legIsOpen}),
+        }, { level.legIsOpen }),
         Action("WAIT FOR ANAESTHETIC TO PASS", 8f, {
             if (level.legIsOpen) level.gaugeSpeeds[1] = -0.5f
             level.isAnaesthetised = false
-        }, {level.isAnaesthetised}),
+        }, { level.isAnaesthetised }),
         Action("SPIT INTO LEG", 1f, {
             level.gaugeSpeeds[2] += -0.25f
-        }, {level.legIsOpen}),
+        }, { level.legIsOpen }),
         Action("AMPUTATE ARM", 5f, {
             if (!level.isAnaesthetised) level.gaugeSpeeds[1] = -1f
             if (!level.sawIsDisinfected) level.gaugeSpeeds[2] += -0.15f
