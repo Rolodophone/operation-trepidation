@@ -23,30 +23,38 @@ class Music(ctx: MainActivity) {
     }
 
 
-    private val game: MediaSource
+    val music: List<MediaSource>
 
     init {
         val dataSourceFactory = DefaultDataSourceFactory(ctx, Util.getUserAgent(ctx, ctx.resources.getString(R.string.app_name)))
         val rawDataSource = RawResourceDataSource(ctx)
+        
+        val newMusic = mutableListOf<MediaSource>()
 
-        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.music)))
-        game = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri)
+        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.plans_in_motion)))
+        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
+        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.obliteration)))
+        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
+        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.darkling)))
+        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
+        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.grim_idol)))
+        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
+        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.death_and_axes)))
+        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
+        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.volatile_reaction)))
+        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
+
+        music = newMusic
     }
 
 
 
-    private fun playMusic(music: MediaSource) {
-        player.prepare(music)
+    fun playMusic(index: Int) {
+        player.prepare(music[index])
         player.playWhenReady = true
     }
+    
 
-    fun playGame() = playMusic(game)
-
-    fun pause() {
-        player.playWhenReady = false
-    }
-
-    fun resume() {
-        player.playWhenReady = true
-    }
+    fun pause() { player.playWhenReady = false }
+    fun resume() { player.playWhenReady = true }
 }

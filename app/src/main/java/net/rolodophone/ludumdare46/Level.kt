@@ -3,9 +3,10 @@ package net.rolodophone.ludumdare46
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.SystemClock
 import net.rolodophone.ludumdare46.button.ButtonText
 
-class Level(val state: StateGame, val title: String, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () -> Boolean) {
+class Level(val state: StateGame, val title: String, musicIndex: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () -> Boolean) {
 
     var syringeIsSanitised = false
     var scalpelIsSterilised = false
@@ -20,6 +21,12 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
     var buttons = mutableListOf<ButtonText>()
 
     var currentAction: Action? = null
+
+    var lastTime = SystemClock.elapsedRealtime()
+
+    init {
+        state.ctx.music.playMusic(musicIndex)
+    }
 
 
     fun replaceButtons() {
@@ -83,6 +90,13 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
                 replaceButtons()
             }
         }
+
+        val currentTime = SystemClock.elapsedRealtime()
+        if (currentTime - lastTime > 1000) {
+            //switch bitmaps
+
+            lastTime = currentTime
+        }
     }
 
 
@@ -96,7 +110,7 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
             //draw colours
             for (sectorIndex in 0..8) {
                 paint.style = Paint.Style.FILL
-                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120 / 9f, 0.5f, 1f))
+                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120 / 8f, 0.5f, 1f))
                 canvas.drawArc(dim, (135f + sectorIndex * 270 / 9), 30f, true, paint)
             }
 
@@ -122,6 +136,10 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
         canvas.drawText("PAIN", w(135), w(85), paint)
         canvas.drawText("INFECTION", w(225), w(85), paint)
         canvas.drawText("BLOOD", w(315), w(85), paint)
+
+
+        //draw patient
+
 
 
         //draw buttons

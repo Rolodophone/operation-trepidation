@@ -9,5 +9,5 @@ class Bitmaps(private val ctx: MainActivity) {
         bitmapOptions.inScaled = false
     }
 
-    //val thing: Bitmap = BitmapFactory.decodeResource(ctx.resources, R.drawable.whatever, bitmapOptions)
+    val thing: Bitmap = BitmapFactory.decodeResource(ctx.resources, R.drawable.whatever, bitmapOptions)
 }

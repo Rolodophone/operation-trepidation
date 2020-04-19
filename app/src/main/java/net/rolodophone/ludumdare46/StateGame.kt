@@ -139,7 +139,7 @@ class StateGame(override val ctx: MainActivity) : State {
     )
 
     val levels = listOf(
-        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", floatArrayOf(1f, 0.6f, 0.7f, 0.4f), floatArrayOf(0f, -0.002f, -0.008f, 0f)) {
+        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", 0, floatArrayOf(1f, 0.6f, 0.7f, 0.4f), floatArrayOf(0f, -0.002f, -0.008f, 0f)) {
             !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
         }
     )
@@ -148,7 +148,6 @@ class StateGame(override val ctx: MainActivity) : State {
 
     init {
         level.replaceButtons()
-        ctx.music.playGame()
     }
 
 
