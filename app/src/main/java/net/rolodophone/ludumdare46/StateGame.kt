@@ -5,8 +5,30 @@ import net.rolodophone.ludumdare46.button.Button
 
 class StateGame(override val ctx: MainActivity) : State {
 
+    override val numThingsToLoad = 1
+
+    enum class State {NONE, GAME_OVER}
+
+    var state = State.NONE
+        set(value) {
+            when (value) {
+                State.NONE -> {
+                    ctx.music.resume()
+                }
+                State.GAME_OVER -> {
+                    ctx.music.pause()
+                }
+            }
+            field = value
+        }
+
+    override val buttons = mutableListOf<Button.ButtonHandler>()
+
+
     class Action(val text: String, val duration: Float, val effect: () -> Unit = {}, val condition: () -> Boolean = {true}) {
-        val invoke = {}
+        val invoke = {
+
+        }
     }
 
     //float array order is heart rate, pain, infection, blood
@@ -67,30 +89,13 @@ class StateGame(override val ctx: MainActivity) : State {
         }
     )
 
-    override val numThingsToLoad = 1
-
-    enum class State {NONE, GAME_OVER}
-
-    var state = State.NONE
-        set(value) {
-            when (value) {
-                State.NONE -> {
-                    ctx.music.resume()
-                }
-                State.GAME_OVER -> {
-                    ctx.music.pause()
-                }
-            }
-            field = value
-        }
-
     var level: Level = levels[0]
 
-    override val buttons = mutableListOf<Button.ButtonHandler>()
-
     init {
+        level.replaceButtons()
         ctx.music.playGame()
     }
+
 
     override fun update() = level.update()
     override fun draw() = level.draw()

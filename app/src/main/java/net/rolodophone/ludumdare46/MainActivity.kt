@@ -53,13 +53,19 @@ class MainActivity : Activity() {
         music = Music(this)
         bitmaps = Bitmaps(this)
 
+        configWindow()
+
         //load state, waiting for music to finish
         state = StateLoading(this, StateGame(this))
     }
 
-    override fun onStart() {
-        super.onStart()
 
+    override fun onRestart() {
+        super.onRestart()
+        configWindow()
+    }
+
+    fun configWindow() {
         //configure window
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
@@ -73,6 +79,10 @@ class MainActivity : Activity() {
         wUnit = width / 360f
         hUnit = height / 360f
         Log.i("Activity", "width: $width height: $height")
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         appOpen = true
         thread = Thread(mainView)

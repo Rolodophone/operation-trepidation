@@ -3,7 +3,6 @@ package net.rolodophone.ludumdare46
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import net.rolodophone.ludumdare46.button.Button
 import net.rolodophone.ludumdare46.button.ButtonText
 
 class Level(val state: StateGame, val title: String, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () -> Boolean) {
@@ -17,13 +16,31 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
     var needleIsDisinfected = false
     var sawIsDisinfected = false
 
-    val buttons = mutableListOf<ButtonText>()
+    var buttons = mutableListOf<ButtonText>()
 
-    init {
-        val buttonHeight = (h(180) - w(80)) / 5
+
+    fun replaceButtons() {
+        buttons.clear()
+        state.buttons.clear()
+
+        val buttonHeight = (h(170) - w(50)) / 5
+
+        val availableActions = mutableListOf<StateGame.Action>()
+        availableActions.addAll(state.actions.filter { it.condition() })
+
         for (i in 0..4) {
-            val newAction = state.actions.random()
-            buttons.add(ButtonText(newAction.text, Paint.Align.CENTER, state, RectF(w(20), h(180) + (buttonHeight*i) + (w(20)*i), w(240), h(180) + ), newAction.invoke))
+            val dim = RectF(w(20), h(180) + buttonHeight * i + w(10) * i, w(340), h(180) + buttonHeight * (i + 1) + w(10) * i)
+
+            if (i != 4) {
+                val newAction = availableActions.random()
+                availableActions.remove(newAction)
+                buttons.add(ButtonText(newAction.text, Paint.Align.CENTER, state, dim, w(18), newAction.invoke))
+            }
+            else {
+                buttons.add(ButtonText("[SKIP]", Paint.Align.CENTER, state, dim, w(18)) {
+                    replaceButtons()
+                })
+            }
         }
     }
 
@@ -40,11 +57,13 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
         }
 
         if (clearCondition()) complete()
+
+        for (button in buttons) button.update()
     }
 
 
     fun draw() {
-        canvas.drawRGB(240, 255, 255)
+        canvas.drawRGB(200, 220, 255)
 
         //draw gauges
         for (gaugeIndex in 0..3) {
@@ -53,8 +72,8 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
             //draw colours
             for (sectorIndex in 0..8) {
                 paint.style = Paint.Style.FILL
-                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120/9f, 0.5f, 1f))
-                canvas.drawArc(dim, (135f + sectorIndex * 270/9), 30f, true, paint)
+                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120 / 9f, 0.5f, 1f))
+                canvas.drawArc(dim, (135f + sectorIndex * 270 / 9), 30f, true, paint)
             }
 
             //draw outline
@@ -82,14 +101,12 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
 
 
         //draw buttons
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = w(4)
-        paint.color = Color.rgb(0, 0, 170)
-        paint.strokeCap = Paint.Cap.SQUARE
-//        canvas.drawRect(w(17), h(220), halfWidth - w(3), h(270) - w(10), paint)
-//        canvas.drawRect(halfWidth + w(3), h(220), w(340), h(270) - w(10), paint)
-//        canvas.drawRect(w(20), h(220), w(340), height - w(20), paint)
-//        canvas.drawRect(w(20), h(220), w(340), height - w(20), paint)
+        for (button in buttons) {
+            paint.color = Color.rgb(130, 180, 255)
+            canvas.drawRect(button.dim, paint)
+            paint.color = Color.BLACK
+            button.draw()
+        }
     }
 
 
