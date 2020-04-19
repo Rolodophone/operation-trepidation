@@ -44,12 +44,13 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
                     val newAction = availableActions.random()
                     availableActions.remove(newAction)
                     buttons.add(ButtonText(newAction.text, Paint.Align.CENTER, state, dim, w(18)) {
-                        state.ctx.sounds.playSelect()
+                        newAction.sound()
+                        newAction.progress = 0f
                         currentAction = newAction
                     })
                 } else {
                     buttons.add(ButtonText("[SKIP]", Paint.Align.CENTER, state, dim, w(18)) {
-                        state.ctx.sounds.playSelect()
+                        state.ctx.sounds.playTap()
                         replaceButtons()
                     })
                 }
