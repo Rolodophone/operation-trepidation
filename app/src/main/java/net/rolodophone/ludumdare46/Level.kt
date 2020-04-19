@@ -3,11 +3,14 @@ package net.rolodophone.ludumdare46
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.SystemClock
 import net.rolodophone.ludumdare46.button.ButtonText
 
 class Level(val state: StateGame, val title: String, musicIndex: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () -> Boolean) {
 
+    var armIsAmputated = false
     var syringeIsSanitised = false
     var scalpelIsSterilised = false
     var legIsOpen = false
@@ -17,12 +20,18 @@ class Level(val state: StateGame, val title: String, musicIndex: Int, val gauges
     var isAnaesthetised = false
     var needleIsDisinfected = false
     var sawIsDisinfected = false
+    var vesselsAreCauterized = false
+    var legIsStitched = false
 
     var buttons = mutableListOf<ButtonText>()
+
+    val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+    val lastGaugeBeeps = mutableListOf<Long?>(null, null, null)
 
     var currentAction: Action? = null
 
     var lastTime = SystemClock.elapsedRealtime()
+    var animationPhase = 0
 
     init {
         state.ctx.music.playMusic(musicIndex)
@@ -70,10 +79,15 @@ class Level(val state: StateGame, val title: String, musicIndex: Int, val gauges
         //update gauges
         for (i in gauges.indices) {
             gauges[i] += gaugeSpeeds[i] / fps
-            if (gauges[i] > 1f) gauges[i] = 1f
-            if (gauges[i] <= 0f) {
-                gauges[i] = 0f
-                fail()
+
+            when {
+                gauges[i] < 0f -> gauges[i] = 0f
+                gauges[i] > 1f -> {
+                    gauges[i] = 1f
+                    fail()
+                }
+                gauges[i] > 0.7 -> if (lastGaugeBeeps[i] == null) lastGaugeBeeps[i] = -201
+                else -> lastGaugeBeeps[i] = null
             }
         }
 
@@ -92,10 +106,19 @@ class Level(val state: StateGame, val title: String, musicIndex: Int, val gauges
         }
 
         val currentTime = SystemClock.elapsedRealtime()
-        if (currentTime - lastTime > 1000) {
-            //switch bitmaps
 
+        //animate patient
+        if (currentTime - lastTime > 1000L) {
+            animationPhase = 1 - animationPhase //switches between 0 and 1
             lastTime = currentTime
+        }
+
+        //control beeps
+        for (i in gauges.indices) {
+            if (lastGaugeBeeps[i] != null && currentTime - lastGaugeBeeps[i]!! > 150L) {
+                toneGenerator.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, 60)
+                lastGaugeBeeps[i] = currentTime
+            }
         }
     }
 
@@ -104,13 +127,13 @@ class Level(val state: StateGame, val title: String, musicIndex: Int, val gauges
         canvas.drawRGB(200, 220, 255)
 
         //draw gauges
-        for (gaugeIndex in 0..3) {
-            val dim = RectF(w(90 * gaugeIndex + 10), w(10), w(90 * gaugeIndex + 80), w(80))
+        for (gaugeIndex in 0..2) {
+            val dim = RectF(w(120 * gaugeIndex + 25), w(10), w(120 * gaugeIndex + 95), w(80))
 
             //draw colours
             for (sectorIndex in 0..8) {
                 paint.style = Paint.Style.FILL
-                paint.color = Color.HSVToColor(floatArrayOf(sectorIndex * 120 / 8f, 0.5f, 1f))
+                paint.color = Color.HSVToColor(floatArrayOf(120 - (sectorIndex * 120 / 8f), 0.5f, 1f))
                 canvas.drawArc(dim, (135f + sectorIndex * 270 / 9), 30f, true, paint)
             }
 
@@ -132,14 +155,34 @@ class Level(val state: StateGame, val title: String, musicIndex: Int, val gauges
         paint.isFakeBoldText = true
         paint.style = Paint.Style.FILL
         paint.textAlign = Paint.Align.CENTER
-        canvas.drawText("HEART RATE", w(45), w(85), paint)
-        canvas.drawText("PAIN", w(135), w(85), paint)
-        canvas.drawText("INFECTION", w(225), w(85), paint)
-        canvas.drawText("BLOOD", w(315), w(85), paint)
+        canvas.drawText("PAIN", w(60), w(85), paint)
+        canvas.drawText("INFECTION", w(180), w(85), paint)
+        canvas.drawText("BLOOD LOSS", w(300), w(85), paint)
 
 
         //draw patient
+        val width = w(340)
+        val height = width * (71/96f)
+        val middle = (w(90) + h(180)) / 2f
+        val patientDim = RectF(w(10), middle - height/2, w(350), middle + height/2)
 
+        canvas.drawBitmap(state.ctx.bitmaps.background[animationPhase], null, patientDim, bitmapPaint)
+        if (!scalpelIsSterilised) canvas.drawBitmap(state.ctx.bitmaps.scalpelDirt[animationPhase], null, patientDim, bitmapPaint)
+        if (!forcepsAreDisinfected) canvas.drawBitmap(state.ctx.bitmaps.forcepsDirt[animationPhase], null, patientDim, bitmapPaint)
+        if (!sawIsDisinfected) canvas.drawBitmap(state.ctx.bitmaps.sawDirt[animationPhase], null, patientDim, bitmapPaint)
+        if (!needleIsDisinfected) canvas.drawBitmap(state.ctx.bitmaps.needleDirt[animationPhase], null, patientDim, bitmapPaint)
+        if (!syringeIsSanitised) canvas.drawBitmap(state.ctx.bitmaps.syringeDirt[animationPhase], null, patientDim, bitmapPaint)
+        canvas.drawBitmap(state.ctx.bitmaps.patient[animationPhase], null, patientDim, bitmapPaint)
+        if (bulletIsInLeg) canvas.drawBitmap(state.ctx.bitmaps.bullet[animationPhase], null, patientDim, bitmapPaint)
+        if (!vesselsAreCauterized && legIsOpen) canvas.drawBitmap(state.ctx.bitmaps.legBlood[animationPhase], null, patientDim, bitmapPaint)
+        if (!legIsOpen) canvas.drawBitmap(state.ctx.bitmaps.legSkin[animationPhase], null, patientDim, bitmapPaint)
+        if (legIsStitched) canvas.drawBitmap(state.ctx.bitmaps.legStitches[animationPhase], null, patientDim, bitmapPaint)
+        //canvas.drawBitmap(state.ctx.bitmaps.eyelids[animationPhase], null, patientDim, bitmapPaint)
+        if (armIsAmputated) canvas.drawBitmap(state.ctx.bitmaps.armBlood[animationPhase], null, patientDim, bitmapPaint)
+        else canvas.drawBitmap(state.ctx.bitmaps.arm[animationPhase], null, patientDim, bitmapPaint)
+        canvas.drawBitmap(state.ctx.bitmaps.drip[animationPhase], null, patientDim, bitmapPaint)
+        canvas.drawBitmap(state.ctx.bitmaps.surgeon[animationPhase], null, patientDim, bitmapPaint)
+        if (isWearingFaceMask) canvas.drawBitmap(state.ctx.bitmaps.mask[animationPhase], null, patientDim, bitmapPaint)
 
 
         //draw buttons

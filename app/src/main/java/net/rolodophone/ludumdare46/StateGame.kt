@@ -25,7 +25,7 @@ class StateGame(override val ctx: MainActivity) : State {
     override val buttons = mutableListOf<Button.ButtonHandler>()
 
 
-    //float array order is heart rate, pain, infection, blood
+    //float array order is pain, infection, blood
 
     val actions = listOf(
 
@@ -62,17 +62,16 @@ class StateGame(override val ctx: MainActivity) : State {
         Action(
             "WEAR FACE MASK", 2f, ctx.sounds::playWear, {
                 level.isWearingFaceMask = true
-                level.gaugeSpeeds[2] += 0.008f
+                level.gaugeSpeeds[1] += -0.008f
             },
             { !level.isWearingFaceMask }
         ),
 
         Action(
             "ANAESTHETISE LEG", 3f, ctx.sounds::playInject, {
-                level.gauges[0] -= 0.7f
-                level.gauges[1] = 1f
-                level.gaugeSpeeds[1] = 0f
-                if (!level.syringeIsSanitised) level.gaugeSpeeds[2] += -0.12f
+                level.gauges[0] = 0f
+                level.gaugeSpeeds[0] = 0f
+                if (!level.syringeIsSanitised) level.gaugeSpeeds[1] += 0.12f
                 level.isAnaesthetised = true
             }
         ),
@@ -80,27 +79,28 @@ class StateGame(override val ctx: MainActivity) : State {
         Action(
             "CUT OPEN LEG", 5f, ctx.sounds::playCut, {
                 level.legIsOpen = true
-                if (!level.isAnaesthetised) level.gauges[1] += -0.5f
-                if (!level.scalpelIsSterilised) level.gaugeSpeeds[2] += -0.12f
-                level.gaugeSpeeds[2] += -0.005f
-                level.gaugeSpeeds[3] = -0.03f
+                if (!level.isAnaesthetised) level.gauges[0] += 0.5f
+                if (!level.scalpelIsSterilised) level.gaugeSpeeds[1] += 0.12f
+                level.gaugeSpeeds[1] += 0.005f
+                level.gaugeSpeeds[2] = 0.015f
             },
             { !level.legIsOpen }
         ),
 
         Action(
             "CAUTERIZE BLOOD VESSELS IN LEG", 3f, ctx.sounds::playCauterize, {
-                level.gaugeSpeeds[3] = -0.003f
+                level.gaugeSpeeds[2] = 0.003f
+                level.vesselsAreCauterized = true
             },
             { level.legIsOpen }
         ),
 
         Action(
             "TAKE OUT BULLET FROM LEG", 4f, ctx.sounds::playPluck, {
-                if (!level.isAnaesthetised) level.gauges[1] += -0.3f
-                if (!level.forcepsAreDisinfected) level.gaugeSpeeds[2] += -0.12f
+                if (!level.isAnaesthetised) level.gauges[0] += 0.3f
+                if (!level.forcepsAreDisinfected) level.gaugeSpeeds[1] += 0.12f
                 level.bulletIsInLeg = false
-                level.gaugeSpeeds[2] += 0.01f
+                level.gaugeSpeeds[1] += -0.002f
             },
             { level.bulletIsInLeg && level.legIsOpen }
         ),
@@ -108,16 +108,17 @@ class StateGame(override val ctx: MainActivity) : State {
         Action(
             "STITCH UP LEG", 8f, ctx.sounds::playStitch, {
                 level.legIsOpen = false
-                if (!level.isAnaesthetised) level.gauges[1] += -0.3f
-                if (!level.needleIsDisinfected) level.gaugeSpeeds[2] += -0.12f
-                level.gaugeSpeeds[3] = 0.05f
+                if (!level.isAnaesthetised) level.gauges[0] += 0.3f
+                if (!level.needleIsDisinfected) level.gaugeSpeeds[1] += 0.12f
+                level.gaugeSpeeds[2] = 0f
+                level.legIsStitched = true
             },
             { level.legIsOpen }
         ),
 
         Action(
             "WAIT FOR ANAESTHETIC TO PASS", 8f, ctx.sounds::playWait, {
-                if (level.legIsOpen) level.gaugeSpeeds[1] = -0.5f
+                if (level.legIsOpen) level.gaugeSpeeds[0] = 0.5f
                 level.isAnaesthetised = false
             },
             { level.isAnaesthetised }
@@ -125,21 +126,23 @@ class StateGame(override val ctx: MainActivity) : State {
 
         Action(
             "SPIT INTO LEG", 1f, ctx.sounds::playSpit, {
-                level.gaugeSpeeds[2] += -0.25f
+                level.gaugeSpeeds[1] += 0.25f
             },
             { level.legIsOpen }
         ),
 
         Action(
             "AMPUTATE ARM", 5f, ctx.sounds::playSaw, {
-                if (!level.isAnaesthetised) level.gaugeSpeeds[1] = -1f
-                if (!level.sawIsDisinfected) level.gaugeSpeeds[2] += -0.15f
+                if (!level.isAnaesthetised) level.gaugeSpeeds[0] = 1f
+                if (!level.sawIsDisinfected) level.gaugeSpeeds[1] += 0.15f
+                level.gaugeSpeeds[2] = 1f
+                level.armIsAmputated = true
             }
         )
     )
 
     val levels = listOf(
-        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", 0, floatArrayOf(1f, 0.6f, 0.7f, 0.4f), floatArrayOf(0f, -0.002f, -0.008f, 0f)) {
+        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", 0, floatArrayOf(0.4f, 0.3f, 0.6f), floatArrayOf(0.002f, 0.008f, 0f)) {
             !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
         }
     )
