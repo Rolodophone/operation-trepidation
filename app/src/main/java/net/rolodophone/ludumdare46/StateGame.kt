@@ -37,9 +37,13 @@ class StateGame(override val ctx: MainActivity) : State {
             2f,
             { level.forcepsAreDisinfected = true }),
         Action(
-            "STERILISE NEEDLE",
+            "STERILISE STITCHING NEEDLE",
             2f,
             { level.needleIsDisinfected = true }),
+        Action(
+            "SANITISE ANAESTHETIC SYRINGE",
+            2f,
+            { level.syringeIsSanitised = true }),
         Action("DISINFECT SAW", 3f, { level.sawIsDisinfected = true }),
         Action("WEAR FACE MASK", 2f, {
             level.isWearingFaceMask = true
@@ -48,6 +52,8 @@ class StateGame(override val ctx: MainActivity) : State {
         Action("ANAESTHETISE LEG", 3f, {
             level.gauges[0] -= 0.7f
             level.gauges[1] = 1f
+            level.gaugeSpeeds[1] = 0f
+            if (!level.syringeIsSanitised) level.gaugeSpeeds[2] += -0.12f
             level.isAnaesthetised = true
         }),
         Action("CUT OPEN LEG",
@@ -63,7 +69,7 @@ class StateGame(override val ctx: MainActivity) : State {
         Action(
             "CAUTERIZE BLOOD VESSELS IN LEG",
             3f,
-            { level.gaugeSpeeds[3] = -0.003f }),
+            { level.gaugeSpeeds[3] = -0.003f }, { level.legIsOpen }),
         Action("TAKE OUT BULLET FROM LEG", 4f, {
             if (!level.isAnaesthetised) level.gauges[1] += -0.3f
             if (!level.forcepsAreDisinfected) level.gaugeSpeeds[2] += -0.12f
@@ -90,7 +96,7 @@ class StateGame(override val ctx: MainActivity) : State {
     )
 
     val levels = listOf(
-        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", floatArrayOf(1f, 0.6f, 0.9f, 0.4f), floatArrayOf(0f, -0.02f, -0.03f, -0.01f)) {
+        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", floatArrayOf(1f, 0.6f, 0.7f, 0.4f), floatArrayOf(0f, -0.01f, 0f, -0.01f)) {
             !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
         }
     )

@@ -7,6 +7,7 @@ import net.rolodophone.ludumdare46.button.ButtonText
 
 class Level(val state: StateGame, val title: String, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () -> Boolean) {
 
+    var syringeIsSanitised = false
     var scalpelIsSterilised = false
     var legIsOpen = false
     var bulletIsInLeg = true
@@ -22,28 +23,36 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
 
 
     fun replaceButtons() {
-        buttons.clear()
-        state.buttons.clear()
+        synchronized(this) {
+            buttons.clear()
+            state.buttons.clear()
 
-        val buttonHeight = (h(170) - w(50)) / 5
+            val buttonHeight = (h(170) - w(50)) / 5
 
-        val availableActions = mutableListOf<Action>()
-        availableActions.addAll(state.actions.filter { it.condition() })
+            val availableActions = mutableListOf<Action>()
+            availableActions.addAll(state.actions.filter { it.condition() })
 
-        for (i in 0..4) {
-            val dim = RectF(w(20), h(180) + buttonHeight * i + w(10) * i, w(340), h(180) + buttonHeight * (i + 1) + w(10) * i)
+            for (i in 0..4) {
+                val dim = RectF(
+                    w(20),
+                    h(180) + buttonHeight * i + w(10) * i,
+                    w(340),
+                    h(180) + buttonHeight * (i + 1) + w(10) * i
+                )
 
-            if (i != 4) {
-                val newAction = availableActions.random()
-                availableActions.remove(newAction)
-                buttons.add(ButtonText(newAction.text, Paint.Align.CENTER, state, dim, w(18)) {
-                    currentAction = newAction
-                })
-            }
-            else {
-                buttons.add(ButtonText("[SKIP]", Paint.Align.CENTER, state, dim, w(18)) {
-                    replaceButtons()
-                })
+                if (i != 4) {
+                    val newAction = availableActions.random()
+                    availableActions.remove(newAction)
+                    buttons.add(ButtonText(newAction.text, Paint.Align.CENTER, state, dim, w(18)) {
+                        state.ctx.sounds.playSelect()
+                        currentAction = newAction
+                    })
+                } else {
+                    buttons.add(ButtonText("[SKIP]", Paint.Align.CENTER, state, dim, w(18)) {
+                        state.ctx.sounds.playSelect()
+                        replaceButtons()
+                    })
+                }
             }
         }
     }
@@ -116,11 +125,13 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
 
         //draw buttons
         if (currentAction == null) {
-            for (button in buttons) {
-                paint.color = Color.rgb(130, 180, 255)
-                canvas.drawRect(button.dim, paint)
-                paint.color = Color.BLACK
-                button.draw()
+            synchronized(this) {
+                for (button in buttons) {
+                    paint.color = Color.rgb(130, 180, 255)
+                    canvas.drawRect(button.dim, paint)
+                    paint.color = Color.BLACK
+                    button.draw()
+                }
             }
         }
         else {
