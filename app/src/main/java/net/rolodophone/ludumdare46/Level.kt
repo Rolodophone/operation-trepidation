@@ -151,7 +151,9 @@ class Level(val state: StateGame, val title: String, val gauges: FloatArray, val
     }
 
 
-    fun fail() {}
+    fun fail() {
+        state.ctx.sounds.playDie()
+    }
 
 
     fun complete() {}
