@@ -8,7 +8,7 @@ import android.media.ToneGenerator
 import android.os.SystemClock
 import net.rolodophone.ludumdare46.button.ButtonText
 
-class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () ->
+class Level(val state: StateGame, val title: String, val objective: String, val lvlNum: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () ->
 Boolean) {
 
     var armIsAmputated = false
@@ -87,15 +87,23 @@ Boolean) {
     private var startTime = SystemClock.elapsedRealtime()
     private var endTime = 0L
     private var gameOver = false
+    private var credits = false
     private var causeOfDeath: Int? = null
     private var nextLevel = 0
     private val hint = listOf(
         "Remember to disinfect your instruments",
         "Always anaesthetise before making cuts",
         "Don't forget to cauterize after cutting",
-        "Never forget to wear your face mask",
+        "Never forget to wear your face mask (both in-game and IRL)",
         "The patient must not be anaesthetised for the level to end",
-        "The anaesthetic runs out after a while"
+        "All gauges must be stationary for the level to end",
+        "The anaesthetic runs out after a while",
+        "Amputation is never necessary",
+        "Anaesthetise regularly to stop the patient waking up",
+        "The scalpel is used for cutting",
+        "The organs available for use are at the bottom right",
+        "Forceps are for picking up small objects",
+        "A bit of infection while operating is inevitable, so act fast"
     ).random()
 
     init {
@@ -130,7 +138,8 @@ Boolean) {
                         currentAction = newAction
                     })
                 } else {
-                    buttons.add(ButtonText("[SKIP]", Paint.Align.CENTER, state, dim, w(18)) {
+                    dim.inset(w(60), 0f)
+                    buttons.add(ButtonText("MORE", Paint.Align.CENTER, state, dim, w(18)) {
                         state.ctx.sounds.playTap()
                         replaceButtons()
                     })
@@ -145,7 +154,7 @@ Boolean) {
 
         val currentTime = SystemClock.elapsedRealtime()
 
-        if (currentTime - startTime > 4000 && !gameOver) { //update actual level
+        if (currentTime - startTime > 4000L && !gameOver) { //update actual level
             //update gauges
             for (i in gauges.indices) {
                 gauges[i] += gaugeSpeeds[i] / fps
@@ -189,10 +198,10 @@ Boolean) {
             }
 
             //un-anaesthetise after some seconds
-            if (currentTime - timeAnaesthetised > 25000) isAnaesthetised = false
+            if (currentTime - timeAnaesthetised > 25000L) isAnaesthetised = false
         }
 
-        if (currentTime - startTime > 6000f && !gameOver) state.ctx.music.resume()
+        if (currentTime - startTime > 6000L && !gameOver) state.ctx.music.resume()
         else state.ctx.music.pause()
     }
 
@@ -201,7 +210,7 @@ Boolean) {
         val currentTime = SystemClock.elapsedRealtime()
         val timeDifference = currentTime - startTime
 
-        if (timeDifference > 4000) { //draw actual level
+        if (timeDifference > 4000L) { //draw actual level
             if (!gameOver) {
                 canvas.drawRGB(200, 220, 255)
 
@@ -278,6 +287,7 @@ Boolean) {
                 if (vesselIsOnHeart) canvas.drawBitmap(state.ctx.bitmaps.chestVessel[animationPhase], null, patientDim, bitmapPaint)
                 if (!chestIsOpen) canvas.drawBitmap(state.ctx.bitmaps.chestSkin[animationPhase], null, patientDim, bitmapPaint)
                 if (chestIsStitched) canvas.drawBitmap(state.ctx.bitmaps.chestStitches[animationPhase], null, patientDim, bitmapPaint)
+                if (!chestIsCauterised && chestIsOpen) canvas.drawBitmap(state.ctx.bitmaps.chestBlood[animationPhase], null, patientDim, bitmapPaint)
                 if (isAnaesthetised) canvas.drawBitmap(state.ctx.bitmaps.eyelids[animationPhase], null, patientDim, bitmapPaint)
                 canvas.drawBitmap(state.ctx.bitmaps.drip[animationPhase], null, patientDim, bitmapPaint)
                 canvas.drawBitmap(state.ctx.bitmaps.surgeon[animationPhase], null, patientDim, bitmapPaint)
@@ -316,24 +326,38 @@ Boolean) {
             }
 
 
-            else { //gameOver
-                val endTimeDifference = currentTime - endTime
+            else {
+                //gameOver
+                val endTimeDifference = currentTime - endTime;
 
                 if (endTimeDifference < 2000L) {
-                    canvas.drawARGB((endTimeDifference * 255/2000f).toInt(), 0, 0, 0)
-                }
-                else if (endTimeDifference > 4000L) { // restart game
-                    state.level = state.levels[nextLevel].create()
-                    state.level.replaceButtons()
+                    canvas.drawARGB((endTimeDifference * 255 / 2000f).toInt(), 0, 0, 0)
                 }
                 else {
                     canvas.drawRGB(0, 0, 0)
+
+                    if (nextLevel == state.levels.size) { // whole game complete
+                        paint.textSize = w(12)
+                        paint.textAlign = Paint.Align.LEFT
+                        paint.color = Color.WHITE
+                        canvas.drawText("Congratulations, you have completed the game!", w(20), w(60), paint)
+                        canvas.drawText("Thank you for playing!", w(20), w(100), paint)
+                        canvas.drawText("I appreciate any feedback, positive or negative.", w(20), w(140), paint)
+                        canvas.drawText("This game was made in 72 hours for #ludumdare46", w(20), w(200), paint)
+                        canvas.drawText("Congratulations, you have completed the game", w(20), w(60), paint)
+                        canvas.drawText("Congratulations, you have completed the game", w(20), w(60), paint)
+                    }
+
+                    else if (endTimeDifference > 4000L) { // restart game
+                        state.level = state.levels[nextLevel].create()
+                        state.level.replaceButtons()
+                    }
                 }
             }
 
 
             //draw fade at the beginning
-            if (timeDifference < 6000) {
+            if (timeDifference < 6000L) {
                 canvas.drawARGB(255 - ((timeDifference-4000) * 255/2000f).toInt(), 0, 0, 0)
             }
         }
@@ -342,14 +366,19 @@ Boolean) {
         else {
             // draw title before game starts
             canvas.drawRGB(0, 0, 0)
-            paint.textSize = w(18)
+            paint.textSize = w(21)
             paint.color = Color.WHITE
             paint.textAlign = Paint.Align.CENTER
+            paint.isFakeBoldText = true
             canvas.drawText(title, halfWidth, halfHeight - w(20), paint)
 
-            //draw hint
+            //draw objective
             paint.textSize = w(12)
-            canvas.drawText(hint, halfWidth, halfHeight + w(20), paint)
+            canvas.drawText(objective, halfWidth, halfHeight + w(15), paint)
+
+            //draw hint
+            paint.isFakeBoldText = false
+            canvas.drawText(hint, halfWidth, height - w(180), paint)
         }
     }
 

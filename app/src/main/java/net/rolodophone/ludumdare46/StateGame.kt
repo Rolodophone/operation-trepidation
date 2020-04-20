@@ -82,7 +82,7 @@ class StateGame(override val ctx: MainActivity) : State {
                 if (!level.isAnaesthetised) level.gauges[0] += 0.1f
                 if (!level.scalpelIsSterilised) level.gaugeSpeeds[1] += 0.12f
                 level.gaugeSpeeds[1] += 0.005f
-                level.gaugeSpeeds[2] = 0.015f
+                level.gaugeSpeeds[2] = 0.025f
             },
             { !level.legIsOpen }
         ),
@@ -113,8 +113,10 @@ class StateGame(override val ctx: MainActivity) : State {
                 level.legIsOpen = false
                 if (!level.isAnaesthetised) level.gauges[0] += 0.1f
                 if (!level.needleIsDisinfected) level.gaugeSpeeds[1] += 0.12f
-                level.gaugeSpeeds[2] = 0f
+                if (level.legIsCauterised) level.gaugeSpeeds[2] -= 0.025f
                 level.legIsStitched = true
+                level.legIsCauterised = true
+                level.gaugeSpeeds[1] += -0.005f
             },
             { level.legIsOpen }
         ),
@@ -147,7 +149,7 @@ class StateGame(override val ctx: MainActivity) : State {
                 if (!level.scalpelIsSterilised) level.donorSkinIsInfected = true
                 level.donorSkinIsCut = true
             },
-            { !level.skinIsInSite }
+            { level.donorSkinIsOnTable && !level.donorSkinIsCut }
         ),
 
         Action(
@@ -193,7 +195,7 @@ class StateGame(override val ctx: MainActivity) : State {
                 if (!level.isAnaesthetised) level.gauges[0] += 0.1f
                 if (!level.scalpelIsSterilised) level.gaugeSpeeds[1] += 0.12f
                 level.gaugeSpeeds[1] += 0.005f
-                level.gaugeSpeeds[2] = 0.015f
+                level.gaugeSpeeds[2] = 0.025f
             },
             { !level.stomachIsOpen }
         ),
@@ -201,14 +203,14 @@ class StateGame(override val ctx: MainActivity) : State {
         Action(
             "CUT OPEN CHEST", 5f, ctx.sounds::playSkin, {
                 level.chestIsStitched = false
-                level.stomachIsCauterized = false
-                level.stomachIsOpen = true
+                level.chestIsCauterised = false
+                level.chestIsOpen = true
                 if (!level.isAnaesthetised) level.gauges[0] += 0.1f
                 if (!level.scalpelIsSterilised) level.gaugeSpeeds[1] += 0.12f
                 level.gaugeSpeeds[1] += 0.005f
-                level.gaugeSpeeds[2] = 0.015f
+                level.gaugeSpeeds[2] = 0.025f
             },
-            { !level.stomachIsOpen }
+            { !level.chestIsOpen }
         ),
 
         Action(
@@ -216,7 +218,7 @@ class StateGame(override val ctx: MainActivity) : State {
                 if (!level.isAnaesthetised) level.gauges[0] += 0.1f
                 if (!level.scalpelIsSterilised) level.gaugeSpeeds[1] += 0.12f
                 level.gaugeSpeeds[1] += 0.005f
-                level.gaugeSpeeds[2] = 0.015f
+                level.gaugeSpeeds[2] = 0.025f
                 level.vesselIsOnStomach = false
                 level.vesselIsOnTable = true
                 level.stomachIsCauterized = false
@@ -248,7 +250,11 @@ class StateGame(override val ctx: MainActivity) : State {
             "STITCH UP STOMACH", 5f, ctx.sounds::playStitch, {
                 if (!level.needleIsDisinfected) level.gaugeSpeeds[1] += 0.12f
                 if (!level.isAnaesthetised) level.gaugeSpeeds[0] = 0.1f
+                if (!level.stomachIsCauterized) level.gaugeSpeeds[2] -= 0.025f
                 level.stomachIsStitched = true
+                level.stomachIsOpen = false
+                level.stomachIsCauterized = true
+                level.gaugeSpeeds[1] += -0.005f
             },
             { level.stomachIsOpen }
         ),
@@ -257,7 +263,11 @@ class StateGame(override val ctx: MainActivity) : State {
             "STITCH UP CHEST", 5f, ctx.sounds::playStitch, {
                 if (!level.needleIsDisinfected) level.gaugeSpeeds[1] += 0.12f
                 if (!level.isAnaesthetised) level.gaugeSpeeds[0] = 0.1f
+                if (!level.chestIsCauterised) level.gaugeSpeeds[2] -= 0.025f
                 level.chestIsStitched = true
+                level.chestIsOpen = false
+                level.chestIsCauterised = true
+                level.gaugeSpeeds[1] += -0.005f
             },
             { level.chestIsOpen }
         )
@@ -266,17 +276,20 @@ class StateGame(override val ctx: MainActivity) : State {
     //float array order is pain, infection, blood
 
     val levels = listOf(
-        LevelFactory(this, "LEVEL 1: BULLET REMOVAL",
+        LevelFactory(this, "LEVEL 1: BULLET DEBRIDEMENT",
+            "Remove the bullet from his leg",
             0, floatArrayOf(0.4f, 0.3f, 0.6f), floatArrayOf(0.002f, 0.008f, 0f)) {
             !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
         },
 
         LevelFactory(this, "LEVEL 2: SKIN GRAFT",
+            "Replace his damaged skin with the donor skin",
             1, floatArrayOf(0.1f, 0.5f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
             !level.isAnaesthetised && level.skinSiteIsBandaged && level.gaugeSpeeds.all { it >= 0f }
         },
 
         LevelFactory(this, "LEVEL 3: CORONARY BYPASS",
+            "Move the blood vessel from his stomach to his heart",
             2, floatArrayOf(0.1f, 0.1f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
             !level.isAnaesthetised && level.vesselIsOnHeart && level.gaugeSpeeds.all { it >= 0f }
         }

@@ -52,6 +52,10 @@ class Bitmaps(ctx: MainActivity) {
         BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_vessel_1, bitmapOptions),
         BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_vessel_2, bitmapOptions)
     )
+    val chestBlood = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_blood_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_blood_2, bitmapOptions)
+    )
     val donorSkin = listOf(
         BitmapFactory.decodeResource(ctx.resources, R.drawable.donor_skin_1, bitmapOptions),
         BitmapFactory.decodeResource(ctx.resources, R.drawable.donor_skin_2, bitmapOptions)
