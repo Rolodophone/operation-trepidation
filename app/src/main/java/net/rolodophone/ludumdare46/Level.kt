@@ -102,7 +102,10 @@ Boolean) {
         "The organs available for use are at the bottom right",
         "Forceps are for picking up small objects",
         "A bit of infection while operating is inevitable, so act fast",
-        "You can see which tools are disinfected in the top right"
+        "You can see which tools are disinfected in the top right",
+        "The patient's eyes indicate whether or not he is conscious",
+        "Be patient; sometimes it's hard to find the right action",
+        "Do as many necessary tasks as possible prior to cutting"
     ).random()
 
     init {
@@ -346,7 +349,7 @@ Boolean) {
                         canvas.drawText("Credits are at rolodophone.itch.io/operation-trepidation", w(20), w(180), paint)
                     }
 
-                    else if (endTimeDifference > 4000L) { // restart game
+                    else if (endTimeDifference > 5000L) { // restart game
                         state.level = state.levels[nextLevel].create()
                         state.level.replaceButtons()
                     }

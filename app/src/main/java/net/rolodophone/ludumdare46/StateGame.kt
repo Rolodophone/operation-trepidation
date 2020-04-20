@@ -141,6 +141,9 @@ class StateGame(override val ctx: MainActivity) : State {
                 if (!level.sawIsDisinfected) level.gaugeSpeeds[1] += 0.15f
                 level.armIsAmputated = true
                 level.armIsCauterised = false
+                level.gaugeSpeeds[1] += 0.005f
+                level.gaugeSpeeds[2] = 0.025f
+
             }, { !level.armIsAmputated }
         ),
 
@@ -290,7 +293,7 @@ class StateGame(override val ctx: MainActivity) : State {
 
         LevelFactory(this, "LEVEL 3: CORONARY BYPASS",
             "Move the blood vessel from his stomach to his heart",
-            0, floatArrayOf(0.1f, 0.1f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
+            2, floatArrayOf(0.1f, 0.1f, 0.2f), floatArrayOf(0f, 0.012f, 0.003f)) {
             level.vesselIsOnHeart && level.chestIsStitched
         }
     )

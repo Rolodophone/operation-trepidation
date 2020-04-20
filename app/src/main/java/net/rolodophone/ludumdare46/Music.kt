@@ -31,15 +31,9 @@ class Music(ctx: MainActivity) {
         
         val newMusic = mutableListOf<MediaSource>()
 
-        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.plans_in_motion)))
-        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
-        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.obliteration)))
-        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
         rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.darkling)))
         newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
         rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.grim_idol)))
-        newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
-        rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.death_and_axes)))
         newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
         rawDataSource.open(DataSpec(RawResourceDataSource.buildRawResourceUri(R.raw.volatile_reaction)))
         newMusic.add(ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(rawDataSource.uri))
