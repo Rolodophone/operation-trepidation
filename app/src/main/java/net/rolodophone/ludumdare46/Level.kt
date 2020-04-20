@@ -257,10 +257,14 @@ Boolean) {
 
 
                 //draw patient
-                val width = w(340)
-                val height = width * (71 / 96f)
+                var width = w(340)
+                var height = width * (71 / 96f)
+                if (h(180) - w(90) - w(15) < height) {
+                    height = h(180) - w(90) - w(15)
+                    width = height * (96/71f)
+                }
                 val middle = (w(90) + h(180)) / 2f
-                val patientDim = RectF(w(10), middle - height / 2, w(350), middle + height / 2)
+                val patientDim = RectF(halfWidth - width / 2, middle - height / 2, halfWidth + width / 2, middle + height / 2)
 
                 canvas.drawBitmap(state.ctx.bitmaps.background[animationPhase], null, patientDim, bitmapPaint)
                 if (donorSkinIsOnTable) canvas.drawBitmap(state.ctx.bitmaps.donorSkin[animationPhase], null, patientDim, bitmapPaint)
@@ -330,7 +334,7 @@ Boolean) {
 
             else {
                 //gameOver
-                val endTimeDifference = currentTime - endTime;
+                val endTimeDifference = currentTime - endTime
 
                 if (endTimeDifference < 2000L) {
                     canvas.drawARGB((endTimeDifference * 255 / 2000f).toInt(), 0, 0, 0)
