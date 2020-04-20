@@ -8,13 +8,14 @@ import android.media.ToneGenerator
 import android.os.SystemClock
 import net.rolodophone.ludumdare46.button.ButtonText
 
-class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () -> Boolean) {
+class Level(val state: StateGame, val title: String, hints: List<String>, val lvlNum: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () ->
+Boolean) {
 
     var armIsAmputated = false
     var syringeIsSanitised = false
     var scalpelIsSterilised = false
     var legIsOpen = false
-    var bulletIsInLeg = true
+    var bulletIsInLeg = false
     var forcepsAreDisinfected = false
     var isWearingFaceMask = false
     var isAnaesthetised = false
@@ -23,21 +24,38 @@ class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges
     var vesselsAreCauterized = false
     var legIsStitched = false
 
-    var buttons = mutableListOf<ButtonText>()
+    var skinSiteIsDamaged = false
+    var donorSkinIsCut = false
+    var donorSkinIsInfected = false
+    var skinSiteIsPrepared = false
+    var skinIsInSite = false
+    var skinSiteIsStitched = false
+    var skinSiteIsBandaged = false
 
-    val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-    val lastGaugeBeeps = mutableListOf<Long?>(null, null, null)
 
-    var currentAction: Action? = null
+    init {
+        when(lvlNum) {
+            0 -> bulletIsInLeg = true
+            1 -> skinSiteIsDamaged = true
+        }
+    }
 
-    var lastTime = SystemClock.elapsedRealtime()
-    var animationPhase = 0
+    private var buttons = mutableListOf<ButtonText>()
 
-    var startTime = SystemClock.elapsedRealtime()
-    var endTime = 0L
-    var gameOver = false
-    var causeOfDeath: Int? = null
-    var nextLevel = 0
+    private val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+    private val lastGaugeBeeps = mutableListOf<Long?>(null, null, null)
+
+    private var currentAction: Action? = null
+
+    private var lastTime = SystemClock.elapsedRealtime()
+    private var animationPhase = 0
+
+    private var startTime = SystemClock.elapsedRealtime()
+    private var endTime = 0L
+    private var gameOver = false
+    private var causeOfDeath: Int? = null
+    private var nextLevel = 0
+    private val hint = hints.random()
 
     init {
         state.ctx.music.prepMusic(lvlNum)
@@ -200,8 +218,8 @@ class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges
                 if (!vesselsAreCauterized && legIsOpen) canvas.drawBitmap(state.ctx.bitmaps.legBlood[animationPhase], null, patientDim, bitmapPaint)
                 if (!legIsOpen) canvas.drawBitmap(state.ctx.bitmaps.legSkin[animationPhase], null, patientDim, bitmapPaint)
                 if (legIsStitched) canvas.drawBitmap(state.ctx.bitmaps.legStitches[animationPhase], null, patientDim, bitmapPaint)
-                //canvas.drawBitmap(state.ctx.bitmaps.eyelids[animationPhase], null, patientDim, bitmapPaint)
-                if (armIsAmputated) canvas.drawBitmap(state.ctx.bitmaps.armBlood[animationPhase], null, patientDim, bitmapPaint)
+                if (isAnaesthetised) canvas.drawBitmap(state.ctx.bitmaps.eyelids[animationPhase], null, patientDim, bitmapPaint)
+                if (!vesselsAreCauterized && armIsAmputated) canvas.drawBitmap(state.ctx.bitmaps.armBlood[animationPhase], null, patientDim, bitmapPaint)
                 else canvas.drawBitmap(state.ctx.bitmaps.arm[animationPhase], null, patientDim, bitmapPaint)
                 canvas.drawBitmap(state.ctx.bitmaps.drip[animationPhase], null, patientDim, bitmapPaint)
                 canvas.drawBitmap(state.ctx.bitmaps.surgeon[animationPhase], null, patientDim, bitmapPaint)
@@ -250,6 +268,9 @@ class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges
                     state.level = state.levels[nextLevel].create()
                     state.level.replaceButtons()
                 }
+                else {
+                    canvas.drawRGB(0, 0, 0)
+                }
             }
 
 
@@ -265,7 +286,13 @@ class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges
             paint.textSize = w(18)
             paint.color = Color.WHITE
             paint.textAlign = Paint.Align.CENTER
-            canvas.drawText(title, halfWidth, halfHeight, paint)
+            canvas.drawText(title, halfWidth, halfHeight - w(20), paint)
+
+            //draw hint
+            if (state.levels[lvlNum].failedAttempts >= 3) {
+                paint.textSize = w(10)
+                canvas.drawText(hint, halfWidth, halfHeight - w(10), paint)
+            }
         }
     }
 
@@ -275,12 +302,14 @@ class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges
         state.ctx.sounds.playDie()
         gameOver = true
         nextLevel = 0
+        state.levels[lvlNum].failedAttempts++
         endTime = SystemClock.elapsedRealtime()
     }
 
 
     fun complete() {
         state.ctx.music.pause()
+        state.ctx.sounds.playVictory()
         gameOver = true
         nextLevel = lvlNum + 1
         endTime = SystemClock.elapsedRealtime()

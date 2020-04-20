@@ -19,6 +19,7 @@ class Sounds(ctx: MainActivity) {
     private var tap = soundPool.load(ctx, R.raw.tap, 1)
     private var spit = soundPool.load(ctx, R.raw.spit, 1)
     private var stitch = soundPool.load(ctx, R.raw.stitch, 1)
+    private var victory = soundPool.load(ctx, R.raw.victory, 1)
     private var wait = soundPool.load(ctx, R.raw.wait, 1)
     private var wear = soundPool.load(ctx, R.raw.wear, 1)
 
@@ -29,7 +30,7 @@ class Sounds(ctx: MainActivity) {
 
     fun playCauterize() = playSound(cauterize)
     fun playClean() = playSound(clean)
-    fun playCut() = playSound(cut)
+    fun playSkin() = playSound(cut)
     fun playDie() = playSound(die)
     fun playInject() = playSound(inject)
     fun playPluck() = playSound(pluck)
@@ -37,6 +38,7 @@ class Sounds(ctx: MainActivity) {
     fun playTap() = playSound(tap)
     fun playSpit() = playSound(spit)
     fun playStitch() = playSound(stitch)
+    fun playVictory() = playSound(victory)
     fun playWait() = playSound(wait)
     fun playWear() = playSound(wear)
 

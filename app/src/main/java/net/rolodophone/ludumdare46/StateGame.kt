@@ -25,8 +25,6 @@ class StateGame(override val ctx: MainActivity) : State {
     override val buttons = mutableListOf<Button.ButtonHandler>()
 
 
-    //float array order is pain, infection, blood
-
     val actions = listOf(
 
         Action(
@@ -68,7 +66,7 @@ class StateGame(override val ctx: MainActivity) : State {
         ),
 
         Action(
-            "ANAESTHETISE LEG", 3f, ctx.sounds::playInject, {
+            "ANAESTHETISE", 3f, ctx.sounds::playInject, {
                 level.gauges[0] = 0f
                 level.gaugeSpeeds[0] = 0f
                 if (!level.syringeIsSanitised) level.gaugeSpeeds[1] += 0.12f
@@ -77,7 +75,7 @@ class StateGame(override val ctx: MainActivity) : State {
         ),
 
         Action(
-            "CUT OPEN LEG", 5f, ctx.sounds::playCut, {
+            "CUT OPEN LEG", 5f, ctx.sounds::playSkin, {
                 level.legIsOpen = true
                 if (!level.isAnaesthetised) level.gauges[0] += 0.5f
                 if (!level.scalpelIsSterilised) level.gaugeSpeeds[1] += 0.12f
@@ -89,10 +87,10 @@ class StateGame(override val ctx: MainActivity) : State {
 
         Action(
             "CAUTERIZE BLOOD VESSELS IN LEG", 3f, ctx.sounds::playCauterize, {
-                level.gaugeSpeeds[2] = 0.003f
+                level.gaugeSpeeds[2] = 0f
                 level.vesselsAreCauterized = true
             },
-            { level.legIsOpen }
+            { level.legIsOpen || level.armIsAmputated}
         ),
 
         Action(
@@ -135,15 +133,73 @@ class StateGame(override val ctx: MainActivity) : State {
             "AMPUTATE ARM", 5f, ctx.sounds::playSaw, {
                 if (!level.isAnaesthetised) level.gaugeSpeeds[0] = 1f
                 if (!level.sawIsDisinfected) level.gaugeSpeeds[1] += 0.15f
-                level.gaugeSpeeds[2] = 1f
+                if (!level.vesselsAreCauterized) level.gaugeSpeeds[2] = 1f
                 level.armIsAmputated = true
-            }
+            }, { !level.armIsAmputated }
+        ),
+
+        Action(
+            "CUT DONOR SKIN TO SIZE", 5f, ctx.sounds::playSkin, {
+                if (!level.scalpelIsSterilised) level.donorSkinIsInfected = true
+                level.donorSkinIsCut = true
+            },
+            { !level.skinIsInSite }
+        ),
+
+        Action(
+            "PREPARE WOUND SITE", 5f, ctx.sounds::playSkin, {
+                if (!level.isAnaesthetised) level.gaugeSpeeds[0] = 0.5f
+                if (!level.scalpelIsSterilised) level.gaugeSpeeds[1] += 0.15f
+                level.skinSiteIsPrepared = true
+            },
+            { level.skinSiteIsDamaged && !level.skinSiteIsPrepared }
+        ),
+
+        Action(
+            "INSERT SKIN INTO SITE", 5f, ctx.sounds::playSkin, {
+                level.skinIsInSite = true
+                if (level.donorSkinIsInfected) level.gaugeSpeeds[1] += 0.15f
+            },
+            { !level.skinIsInSite && level.skinSiteIsPrepared && level.donorSkinIsCut }
+        ),
+
+        Action(
+            "STITCH SKIN TOGETHER", 5f, ctx.sounds::playStitch, {
+                level.skinSiteIsStitched = true
+                if (!level.needleIsDisinfected) level.gaugeSpeeds[1] += 0.15f
+                if (!level.isAnaesthetised) level.gaugeSpeeds[0] = 0.5f
+            },
+            { level.skinIsInSite }
+        ),
+
+        Action(
+            "BANDAGE UP SKIN", 3f, ctx.sounds::playStitch, {
+                level.skinSiteIsBandaged = true
+            },
+            { level.skinSiteIsStitched }
         )
     )
 
+    //float array order is pain, infection, blood
+
     val levels = listOf(
-        LevelFactory(this, "LEVEL 1: BULLET DEBRIDEMENT", 0, floatArrayOf(0.4f, 0.3f, 0.6f), floatArrayOf(0.002f, 0.008f, 0f)) {
+        LevelFactory(this, "LEVEL 1: BULLET REMOVAL",
+            listOf("Remember to disinfect your instruments", "Always anaesthetise before making cuts", "Don't forget to cauterize after cutting", "Never forget to wear your face" +
+                    " mask"),
+            0, floatArrayOf(0.4f, 0.3f, 0.6f), floatArrayOf(0.002f, 0.008f, 0f)) {
             !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
+        },
+
+        LevelFactory(this, "LEVEL 2: SKIN GRAFT",
+            listOf("hints here"),
+            1, floatArrayOf(0.1f, 0.5f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
+            !level.isAnaesthetised && level.skinSiteIsBandaged && level.gaugeSpeeds.all { it >= 0f }
+        },
+
+        LevelFactory(this, "LEVEL 3: CORONARY BYPASS",
+            listOf("hints here"),
+            2, floatArrayOf(0.1f, 0.1f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
+            !level.isAnaesthetised &&  && level.gaugeSpeeds.all { it >= 0f }
         }
     )
 
