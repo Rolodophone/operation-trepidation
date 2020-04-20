@@ -383,7 +383,7 @@ Boolean) {
 
             //draw hint
             paint.isFakeBoldText = false
-            canvas.drawText(hint, halfWidth, height - w(180), paint)
+            canvas.drawText(hint, halfWidth, height - w(100), paint)
         }
     }
 
