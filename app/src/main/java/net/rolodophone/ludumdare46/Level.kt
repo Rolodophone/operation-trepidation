@@ -8,7 +8,7 @@ import android.media.ToneGenerator
 import android.os.SystemClock
 import net.rolodophone.ludumdare46.button.ButtonText
 
-class Level(val state: StateGame, val title: String, hints: List<String>, val lvlNum: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () ->
+class Level(val state: StateGame, val title: String, val lvlNum: Int, val gauges: FloatArray, val gaugeSpeeds: FloatArray, val clearCondition: () ->
 Boolean) {
 
     var armIsAmputated = false
@@ -18,25 +18,59 @@ Boolean) {
     var bulletIsInLeg = false
     var forcepsAreDisinfected = false
     var isWearingFaceMask = false
-    var isAnaesthetised = false
     var needleIsDisinfected = false
     var sawIsDisinfected = false
-    var vesselsAreCauterized = false
+    var legIsCauterised = false
+    var armIsCauterised = false
     var legIsStitched = false
 
-    var skinSiteIsDamaged = false
-    var donorSkinIsCut = false
+    var isAnaesthetised = false
+        set (willBeAnaesthetised) {
+            field = willBeAnaesthetised
+
+            if (willBeAnaesthetised) {
+                gauges[0] = 0f
+                gaugeSpeeds[0] = 0f
+                timeAnaesthetised = SystemClock.elapsedRealtime()
+
+            }
+            else if (legIsOpen || chestIsOpen || (stomachIsOpen && !skinSiteIsDamaged) || (armIsAmputated && !armIsCauterised)) {
+                gaugeSpeeds[0] = 0.1f
+            }
+        }
+
+    var stomachIsOpen = false
+    var stomachIsCauterized = false
+    var donorSkinIsCut = true
     var donorSkinIsInfected = false
-    var skinSiteIsPrepared = false
+    var donorSkinIsOnTable = false
+    var skinSiteIsDamaged = false
     var skinIsInSite = false
     var skinSiteIsStitched = false
     var skinSiteIsBandaged = false
+
+    var chestIsOpen = false
+    var chestIsCauterised = false
+    var vesselIsOnTable = false
+    var vesselIsOnHeart = false
+    var vesselIsOnStomach = true
+    var stomachIsStitched = false
+    var chestIsStitched = false
+
+
+    var timeAnaesthetised = 0L
 
 
     init {
         when(lvlNum) {
             0 -> bulletIsInLeg = true
-            1 -> skinSiteIsDamaged = true
+            1 -> {
+                stomachIsOpen = true
+                stomachIsCauterized = true
+                donorSkinIsOnTable = true
+                donorSkinIsCut = false
+                skinSiteIsDamaged = true
+            }
         }
     }
 
@@ -55,7 +89,14 @@ Boolean) {
     private var gameOver = false
     private var causeOfDeath: Int? = null
     private var nextLevel = 0
-    private val hint = hints.random()
+    private val hint = listOf(
+        "Remember to disinfect your instruments",
+        "Always anaesthetise before making cuts",
+        "Don't forget to cauterize after cutting",
+        "Never forget to wear your face mask",
+        "The patient must not be anaesthetised for the level to end",
+        "The anaesthetic runs out after a while"
+    ).random()
 
     init {
         state.ctx.music.prepMusic(lvlNum)
@@ -146,6 +187,9 @@ Boolean) {
                     lastGaugeBeeps[i] = currentTime
                 }
             }
+
+            //un-anaesthetise after some seconds
+            if (currentTime - timeAnaesthetised > 25000) isAnaesthetised = false
         }
 
         if (currentTime - startTime > 6000f && !gameOver) state.ctx.music.resume()
@@ -208,6 +252,9 @@ Boolean) {
                 val patientDim = RectF(w(10), middle - height / 2, w(350), middle + height / 2)
 
                 canvas.drawBitmap(state.ctx.bitmaps.background[animationPhase], null, patientDim, bitmapPaint)
+                if (donorSkinIsOnTable) canvas.drawBitmap(state.ctx.bitmaps.donorSkin[animationPhase], null, patientDim, bitmapPaint)
+                if (!donorSkinIsCut) canvas.drawBitmap(state.ctx.bitmaps.donorSkinExtra[animationPhase], null, patientDim, bitmapPaint)
+                if (vesselIsOnTable) canvas.drawBitmap(state.ctx.bitmaps.vessel[animationPhase], null, patientDim, bitmapPaint)
                 if (!scalpelIsSterilised) canvas.drawBitmap(state.ctx.bitmaps.scalpelDirt[animationPhase], null, patientDim, bitmapPaint)
                 if (!forcepsAreDisinfected) canvas.drawBitmap(state.ctx.bitmaps.forcepsDirt[animationPhase], null, patientDim, bitmapPaint)
                 if (!sawIsDisinfected) canvas.drawBitmap(state.ctx.bitmaps.sawDirt[animationPhase], null, patientDim, bitmapPaint)
@@ -215,12 +262,23 @@ Boolean) {
                 if (!syringeIsSanitised) canvas.drawBitmap(state.ctx.bitmaps.syringeDirt[animationPhase], null, patientDim, bitmapPaint)
                 canvas.drawBitmap(state.ctx.bitmaps.patient[animationPhase], null, patientDim, bitmapPaint)
                 if (bulletIsInLeg) canvas.drawBitmap(state.ctx.bitmaps.bullet[animationPhase], null, patientDim, bitmapPaint)
-                if (!vesselsAreCauterized && legIsOpen) canvas.drawBitmap(state.ctx.bitmaps.legBlood[animationPhase], null, patientDim, bitmapPaint)
+                if (!legIsCauterised && legIsOpen) canvas.drawBitmap(state.ctx.bitmaps.legBlood[animationPhase], null, patientDim, bitmapPaint)
                 if (!legIsOpen) canvas.drawBitmap(state.ctx.bitmaps.legSkin[animationPhase], null, patientDim, bitmapPaint)
                 if (legIsStitched) canvas.drawBitmap(state.ctx.bitmaps.legStitches[animationPhase], null, patientDim, bitmapPaint)
+                if (vesselIsOnStomach) canvas.drawBitmap(state.ctx.bitmaps.stomachVessel[animationPhase], null, patientDim, bitmapPaint)
+                if (!stomachIsCauterized && stomachIsOpen) canvas.drawBitmap(state.ctx.bitmaps.stomachBlood[animationPhase], null, patientDim, bitmapPaint)
+                if (skinSiteIsDamaged) canvas.drawBitmap(state.ctx.bitmaps.skinDamage[animationPhase], null, patientDim, bitmapPaint)
+                if (!stomachIsOpen) canvas.drawBitmap(state.ctx.bitmaps.skin[animationPhase], null, patientDim, bitmapPaint)
+                if (stomachIsStitched) canvas.drawBitmap(state.ctx.bitmaps.skinStitches[animationPhase], null, patientDim, bitmapPaint)
+                if (lvlNum == 1 && !stomachIsOpen) canvas.drawBitmap(state.ctx.bitmaps.skinBorder[animationPhase], null, patientDim, bitmapPaint)
+                if (skinSiteIsStitched) canvas.drawBitmap(state.ctx.bitmaps.skinAttachments[animationPhase], null, patientDim, bitmapPaint)
+                if (skinSiteIsBandaged) canvas.drawBitmap(state.ctx.bitmaps.skinBandage[animationPhase], null, patientDim, bitmapPaint)
+                if (!armIsCauterised && armIsAmputated) canvas.drawBitmap(state.ctx.bitmaps.armBlood[animationPhase], null, patientDim, bitmapPaint)
+                if (!armIsAmputated) canvas.drawBitmap(state.ctx.bitmaps.arm[animationPhase], null, patientDim, bitmapPaint)
+                if (vesselIsOnHeart) canvas.drawBitmap(state.ctx.bitmaps.chestVessel[animationPhase], null, patientDim, bitmapPaint)
+                if (!chestIsOpen) canvas.drawBitmap(state.ctx.bitmaps.chestSkin[animationPhase], null, patientDim, bitmapPaint)
+                if (chestIsStitched) canvas.drawBitmap(state.ctx.bitmaps.chestStitches[animationPhase], null, patientDim, bitmapPaint)
                 if (isAnaesthetised) canvas.drawBitmap(state.ctx.bitmaps.eyelids[animationPhase], null, patientDim, bitmapPaint)
-                if (!vesselsAreCauterized && armIsAmputated) canvas.drawBitmap(state.ctx.bitmaps.armBlood[animationPhase], null, patientDim, bitmapPaint)
-                else canvas.drawBitmap(state.ctx.bitmaps.arm[animationPhase], null, patientDim, bitmapPaint)
                 canvas.drawBitmap(state.ctx.bitmaps.drip[animationPhase], null, patientDim, bitmapPaint)
                 canvas.drawBitmap(state.ctx.bitmaps.surgeon[animationPhase], null, patientDim, bitmapPaint)
                 if (isWearingFaceMask) canvas.drawBitmap(state.ctx.bitmaps.mask[animationPhase], null, patientDim, bitmapPaint)
@@ -264,7 +322,7 @@ Boolean) {
                 if (endTimeDifference < 2000L) {
                     canvas.drawARGB((endTimeDifference * 255/2000f).toInt(), 0, 0, 0)
                 }
-                else if (endTimeDifference > 3000L) { // restart game
+                else if (endTimeDifference > 4000L) { // restart game
                     state.level = state.levels[nextLevel].create()
                     state.level.replaceButtons()
                 }
@@ -281,7 +339,8 @@ Boolean) {
         }
 
 
-        else { // draw title before game starts
+        else {
+            // draw title before game starts
             canvas.drawRGB(0, 0, 0)
             paint.textSize = w(18)
             paint.color = Color.WHITE
@@ -289,10 +348,8 @@ Boolean) {
             canvas.drawText(title, halfWidth, halfHeight - w(20), paint)
 
             //draw hint
-            if (state.levels[lvlNum].failedAttempts >= 3) {
-                paint.textSize = w(10)
-                canvas.drawText(hint, halfWidth, halfHeight - w(10), paint)
-            }
+            paint.textSize = w(12)
+            canvas.drawText(hint, halfWidth, halfHeight + w(20), paint)
         }
     }
 
@@ -302,7 +359,6 @@ Boolean) {
         state.ctx.sounds.playDie()
         gameOver = true
         nextLevel = 0
-        state.levels[lvlNum].failedAttempts++
         endTime = SystemClock.elapsedRealtime()
     }
 

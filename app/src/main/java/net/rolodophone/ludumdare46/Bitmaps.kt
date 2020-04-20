@@ -40,6 +40,26 @@ class Bitmaps(ctx: MainActivity) {
         BitmapFactory.decodeResource(ctx.resources, R.drawable.bullet_1, bitmapOptions),
         BitmapFactory.decodeResource(ctx.resources, R.drawable.bullet_2, bitmapOptions)
     )
+    val chestSkin = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_skin_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_skin_2, bitmapOptions)
+    )
+    val chestStitches = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_stitches_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_stitches_2, bitmapOptions)
+    )
+    val chestVessel = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_vessel_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.chest_vessel_2, bitmapOptions)
+    )
+    val donorSkin = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.donor_skin_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.donor_skin_2, bitmapOptions)
+    )
+    val donorSkinExtra = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.donor_skin_extra_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.donor_skin_extra_2, bitmapOptions)
+    )
     val legBlood = listOf(
         BitmapFactory.decodeResource(ctx.resources, R.drawable.leg_blood_1, bitmapOptions),
         BitmapFactory.decodeResource(ctx.resources, R.drawable.leg_blood_2, bitmapOptions)
@@ -75,5 +95,41 @@ class Bitmaps(ctx: MainActivity) {
     val mask = listOf(
         BitmapFactory.decodeResource(ctx.resources, R.drawable.mask_1, bitmapOptions),
         BitmapFactory.decodeResource(ctx.resources, R.drawable.mask_2, bitmapOptions)
+    )
+    val skin = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_2, bitmapOptions)
+    )
+    val skinBandage = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_bandage_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_bandage_2, bitmapOptions)
+    )
+    val skinBorder = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_border_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_border_2, bitmapOptions)
+    )
+    val skinDamage = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_damage_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_damage_2, bitmapOptions)
+    )
+    val skinStitches = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_stitches_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_stitches_2, bitmapOptions)
+    )
+    val skinAttachments = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_attachments_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.skin_attachments_2, bitmapOptions)
+    )
+    val stomachBlood = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.stomach_blood_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.stomach_blood_2, bitmapOptions)
+    )
+    val stomachVessel = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.stomach_vessel_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.stomach_vessel_2, bitmapOptions)
+    )
+    val vessel = listOf(
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.vessel_1, bitmapOptions),
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.vessel_2, bitmapOptions)
     )
 }
