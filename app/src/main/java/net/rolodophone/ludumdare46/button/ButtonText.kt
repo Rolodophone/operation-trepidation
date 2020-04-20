@@ -21,6 +21,6 @@ open class ButtonText(val text: String, val align: Paint.Align, state: State, di
 
         paint.textAlign = align
         paint.textSize = textSize
-        canvas.drawText(text, x, dim.centerY() + textSize/2 + w(3), paint)
+        canvas.drawText(text, x, dim.centerY() + textSize/2 - w(3), paint)
     }
 }

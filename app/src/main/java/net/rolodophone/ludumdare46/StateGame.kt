@@ -168,7 +168,7 @@ class StateGame(override val ctx: MainActivity) : State {
                 level.donorSkinIsOnTable = false
                 if (level.donorSkinIsInfected) level.gaugeSpeeds[1] += 0.15f
             },
-            { !level.skinIsInSite && !level.skinSiteIsDamaged && level.donorSkinIsCut }
+            { level.donorSkinIsOnTable && !level.skinSiteIsDamaged && level.donorSkinIsCut }
         ),
 
         Action(
@@ -279,19 +279,19 @@ class StateGame(override val ctx: MainActivity) : State {
         LevelFactory(this, "LEVEL 1: BULLET DEBRIDEMENT",
             "Remove the bullet from his leg",
             0, floatArrayOf(0.4f, 0.3f, 0.6f), floatArrayOf(0.002f, 0.008f, 0f)) {
-            !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
+            !level.bulletIsInLeg && level.legIsStitched
         },
 
         LevelFactory(this, "LEVEL 2: SKIN GRAFT",
             "Replace his damaged skin with the donor skin",
             1, floatArrayOf(0.1f, 0.5f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
-            !level.isAnaesthetised && level.skinSiteIsBandaged && level.gaugeSpeeds.all { it >= 0f }
+            level.skinSiteIsBandaged
         },
 
         LevelFactory(this, "LEVEL 3: CORONARY BYPASS",
             "Move the blood vessel from his stomach to his heart",
-            2, floatArrayOf(0.1f, 0.1f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
-            !level.isAnaesthetised && level.vesselIsOnHeart && level.gaugeSpeeds.all { it >= 0f }
+            0, floatArrayOf(0.1f, 0.1f, 0.2f), floatArrayOf(0f, 0.008f, 0.003f)) {
+            level.vesselIsOnHeart && level.chestIsStitched
         }
     )
 

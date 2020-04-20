@@ -95,15 +95,14 @@ Boolean) {
         "Always anaesthetise before making cuts",
         "Don't forget to cauterize after cutting",
         "Never forget to wear your face mask (both in-game and IRL)",
-        "The patient must not be anaesthetised for the level to end",
-        "All gauges must be stationary for the level to end",
         "The anaesthetic runs out after a while",
         "Amputation is never necessary",
         "Anaesthetise regularly to stop the patient waking up",
         "The scalpel is used for cutting",
         "The organs available for use are at the bottom right",
         "Forceps are for picking up small objects",
-        "A bit of infection while operating is inevitable, so act fast"
+        "A bit of infection while operating is inevitable, so act fast",
+        "You can see which tools are disinfected in the top right"
     ).random()
 
     init {
@@ -341,11 +340,10 @@ Boolean) {
                         paint.textAlign = Paint.Align.LEFT
                         paint.color = Color.WHITE
                         canvas.drawText("Congratulations, you have completed the game!", w(20), w(60), paint)
-                        canvas.drawText("Thank you for playing!", w(20), w(100), paint)
-                        canvas.drawText("I appreciate any feedback, positive or negative.", w(20), w(140), paint)
-                        canvas.drawText("This game was made in 72 hours for #ludumdare46", w(20), w(200), paint)
-                        canvas.drawText("Congratulations, you have completed the game", w(20), w(60), paint)
-                        canvas.drawText("Congratulations, you have completed the game", w(20), w(60), paint)
+                        canvas.drawText("Thank you for playing!", w(20), w(80), paint)
+                        canvas.drawText("I appreciate any feedback, positive or negative.", w(20), w(100), paint)
+                        canvas.drawText("This game was made in 72 hours for #ludumdare46", w(20), w(140), paint)
+                        canvas.drawText("Credits are at rolodophone.itch.io/operation-trepidation", w(20), w(180), paint)
                     }
 
                     else if (endTimeDifference > 4000L) { // restart game
