@@ -1,7 +1,10 @@
 package net.rolodophone.ludumdare46
 
 import android.app.Activity
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PixelFormat
+import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -89,6 +92,7 @@ class MainActivity : Activity() {
         thread.name = "GameThread"
         thread.start()
         music.resume()
+        sounds.resume()
     }
 
     override fun onPause() {
@@ -106,6 +110,7 @@ class MainActivity : Activity() {
 
         appOpen = false
         music.pause()
+        sounds.pause()
         thread.join()
     }
 }

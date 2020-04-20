@@ -142,12 +142,12 @@ class StateGame(override val ctx: MainActivity) : State {
     )
 
     val levels = listOf(
-        Level(this, "LEVEL 1: BULLET DEBRIDEMENT", 0, floatArrayOf(0.4f, 0.3f, 0.6f), floatArrayOf(0.002f, 0.008f, 0f)) {
+        LevelFactory(this, "LEVEL 1: BULLET DEBRIDEMENT", 0, floatArrayOf(0.4f, 0.3f, 0.6f), floatArrayOf(0.002f, 0.008f, 0f)) {
             !level.bulletIsInLeg && !level.isAnaesthetised && level.gaugeSpeeds.all { it >= 0f }
         }
     )
 
-    var level: Level = levels[0]
+    var level: Level = levels[0].create()
 
     init {
         level.replaceButtons()
