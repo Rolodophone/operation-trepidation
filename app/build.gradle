@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     signingConfigs {
         release {
-            storeFile file('***REMOVED***')
+            storeFile file('/home/sergi/Drive/Programming/operation-trepidation/keys.jks')
             storePassword '***REMOVED***'
             keyPassword '***REMOVED***'
             keyAlias = '***REMOVED***'
