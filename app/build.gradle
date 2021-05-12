@@ -1,3 +1,5 @@
+println("IMPORTANT: To build you must create a text file at the top level named keys.txt with the appropriate key data in it. DO NOT ADD THIS FILE TO GIT!")
+
 def keysData = file("../keys.txt").readLines()
 
 apply plugin: 'com.android.application'
