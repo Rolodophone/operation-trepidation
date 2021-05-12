@@ -1,3 +1,5 @@
+def keysData = file("../keys.txt").readLines()
+
 apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
@@ -7,10 +9,10 @@ apply plugin: 'kotlin-android-extensions'
 android {
     signingConfigs {
         release {
-            storeFile file('/home/sergi/Drive/Programming/operation-trepidation/keys.jks')
-            storePassword '***REMOVED***'
-            keyPassword '***REMOVED***'
-            keyAlias = '***REMOVED***'
+            storeFile file(keysData[0])
+            storePassword keysData[1]
+            keyAlias keysData[2]
+            keyPassword keysData[3]
         }
     }
     compileSdkVersion 29
