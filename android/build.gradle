@@ -30,7 +30,7 @@ android {
 		exclude 'META-INF/dependencies.txt'
 	}
 	defaultConfig {
-		applicationId 'io.github.rolodophone.ludumdare46'
+		applicationId 'net.rolodophone.ludumdare46'
 		minSdkVersion 19
 		targetSdkVersion 29
 		versionCode 1
@@ -126,7 +126,7 @@ task run(type: Exec) {
 	}
 
 	def adb = path + "/platform-tools/adb"
-	commandLine "$adb", 'shell', 'am', 'start', '-n', 'io.github.rolodophone.ludumdare46/io.github.rolodophone.ludumdare46.AndroidLauncher'
+	commandLine "$adb", 'shell', 'am', 'start', '-n', 'net.rolodophone.ludumdare46/netnet.rolodophone.ludumdare46.AndroidLauncher'
 }
 
 eclipse.project.name = appName + "-android"

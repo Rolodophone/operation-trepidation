@@ -1,4 +1,4 @@
-package io.github.rolodophone.ludumdare46;
+package net.rolodophone.ludumdare46;
 
 import com.badlogic.gdx.Game;
 

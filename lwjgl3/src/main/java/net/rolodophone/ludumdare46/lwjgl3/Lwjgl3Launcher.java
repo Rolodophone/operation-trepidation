@@ -1,8 +1,8 @@
-package io.github.rolodophone.ludumdare46.lwjgl3;
+package net.rolodophone.ludumdare46.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import io.github.rolodophone.ludumdare46.Main;
+import net.rolodophone.ludumdare46.Main;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
