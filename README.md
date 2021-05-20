@@ -1,37 +1,27 @@
-Perform operations by swiftly carrying out the correct actions in the correct order. Beware, if one of the pain, infection, or blood loss gauges reaches 100%, the patient dies, and it’s back to square one. There are 3 levels of increasing difficulty; good luck!
+# OperationTrepidation
 
-Look at the hints; they will help you!
+A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/tommyettinger/gdx-liftoff).
 
-This is my second time participating and my first working game. I appreciate any feedback, positive or negative. Thank you for trying my game and I hope you enjoyed it. smiley
+Project template includes simple launchers and a `Game` extension that sets the first screen.
 
-Credits:
+## Gradle
 
-Spit sound, https://freesound.org/people/gidion​, ​Attribution 3.0 Non-Commercial​
+This project uses [Gradle](http://gradle.org/) to manage dependencies. Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands. Useful Gradle tasks and flags:
 
-Whistle, https://freesound.org/people/georgisound/, https://creativecommons.org/publicdomain/zero/1.0/
+- `--continue`: when using this flag, errors will not stop the tasks from running.
+- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
+- `--offline`: when using this flag, cached dependency archives will be used.
+- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
+- `android:lint`: performs Android project validation.
+- `build`: builds sources and archives of every project.
+- `cleanEclipse`: removes Eclipse project data.
+- `cleanIdea`: removes IntelliJ project data.
+- `clean`: removes `build` folders, which store compiled classes and built archives.
+- `eclipse`: generates Eclipse project data.
+- `idea`: generates IntelliJ project data.
+- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
+- `lwjgl3:run`: starts the application.
+- `test`: runs unit tests (if any).
 
-Stitching sound, https://freesound.org/people/pfranzen/, http://creativecommons.org/publicdomain/zero/1.0/
-
-Pluck sound, https://freesound.org/people/Ayavaron/​​​, https://creativecommons.org/publicdomain/zero/1.0/
-
-Cauterizing, https://freesound.org/people/vibe_crc/, http://creativecommons.org/publicdomain/zero/1.0/
-
-Cutting, https://freesound.org/people/Lextao/​​​, https://creativecommons.org/licenses/by/3.0/​
-
-Wearing mask, https://freesound.org/people/sound_ims/, http://creativecommons.org/licenses/by/3.0/
-
-Sawing, https://freesound.org/people/kolczok/, http://creativecommons.org/publicdomain/zero/1.0/
-
-Disinfecting, https://freesound.org/people/semccab/, http://creativecommons.org/publicdomain/zero/1.0/
-
-Anaesthetising, “Blood Squirting”, http://soundbible.com/suggest.php?q=liquid, https://creativecommons.org/licenses/by/3.0/
-
-Scream sound, “AAAGH1”, https://www.freesoundeffects.com/free-sounds/screams-10094/,​ https://www.freesoundeffects.com/licence.php​​​​​​​​​
-
-“Darkling” Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/
-
-“Grim Idol” Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/
-
-“Volatile Reaction” Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0 License http://creativecommons.org/licenses/by/4.0/​​​​​
-
-Some sounds may be trimmed and/or amplified.
+Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
+For example, `core:clean` removes `build` folder only from the `core` project.

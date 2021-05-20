@@ -1,2 +1,1 @@
-include ':app'
-rootProject.name='Ludum Dare 46'
+include 'lwjgl3', 'android', 'core'
