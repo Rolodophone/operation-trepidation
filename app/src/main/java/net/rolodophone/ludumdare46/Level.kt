@@ -173,7 +173,7 @@ Boolean) {
                 }
             }
 
-                if (clearCondition()) complete ()
+                if (clearCondition()) complete()
 
             if (currentAction != null) {
                 currentAction!!.progress += (1f / currentAction!!.duration) / fps
@@ -374,6 +374,7 @@ Boolean) {
             paint.textSize = w(21)
             paint.color = Color.WHITE
             paint.textAlign = Paint.Align.CENTER
+            paint.style = Paint.Style.FILL
             paint.isFakeBoldText = true
             canvas.drawText(title, halfWidth, halfHeight - w(20), paint)
 
